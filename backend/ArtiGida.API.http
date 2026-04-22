@@ -1,0 +1,6 @@
+@ArtiGida.API_HostAddress = http://localhost:5228
+
+GET {{ArtiGida.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
