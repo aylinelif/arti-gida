@@ -1,0 +1,99 @@
+<div class="bg-brandLight min-h-screen pb-12">
+  
+  <div class="bg-gradient-to-r from-brandGreen to-green-700 py-16 px-4 shadow-lg mb-10">
+    <div class="container mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+        İsrafı Önle, <span class="text-green-200">Geleceği Koru</span>
+      </h1>
+      <p class="text-green-50 text-lg md:text-xl max-w-2xl mx-auto mb-8 font-light">
+        Çevrendeki işletmelerin taze kalan ürünlerini uygun fiyata veya ücretsiz olarak hemen rezerve et.
+      </p>
+
+      <div class="max-w-xl mx-auto bg-white rounded-full p-2 flex shadow-2xl transform transition hover:scale-105 duration-300">
+        <span class="pl-4 pr-2 flex items-center text-gray-400">🔍</span>
+        <input type="text" placeholder="Yemek, işletme veya kategori ara..." class="flex-1 bg-transparent px-2 py-2 outline-none text-gray-700 w-full">
+        <button class="bg-brandDark text-white px-6 py-2 rounded-full font-bold hover:bg-gray-800 transition">
+          Bul
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4">
+    
+    <div class="flex gap-4 overflow-x-auto pb-6 mb-4 scrollbar-hide">
+      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
+        🥐 Unlu Mamüller
+      </button>
+      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
+        🍲 Ev Yemekleri
+      </button>
+      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
+        🍰 Tatlı & Pasta
+      </button>
+      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
+        🥬 Taze Sebze/Meyve
+      </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <h2 class="text-2xl font-extrabold text-brandDark">Yakınındaki Fırsatlar</h2>
+      
+      <div class="flex gap-3">
+        <button class="px-4 py-2 text-sm font-bold bg-white border border-gray-200 rounded-lg shadow-sm hover:border-brandGreen hover:text-brandGreen transition">
+          🔥 En Yeniler
+        </button>
+        <button class="px-4 py-2 text-sm font-bold bg-white border border-gray-200 rounded-lg shadow-sm hover:border-brandGreen hover:text-brandGreen transition">
+          🍰 Kategoriye Göre
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (item of listings; track item.id) {
+        <app-listing-card [listing]="item"></app-listing-card>
+      }
+    </div>
+
+    <div class="mt-16 bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-10">
+      <div class="md:w-1/2">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-brandLight text-brandGreen rounded-full text-sm font-bold mb-6">
+          <span class="text-lg">✨</span> Akıllı Teknoloji
+        </div>
+        <h3 class="text-3xl lg:text-4xl font-extrabold text-brandDark mb-4 tracking-tight">Akıllı Eşleşme, Sıfır İsraf</h3>
+        <p class="text-gray-500 mb-8 leading-relaxed text-lg">
+          Arka planda çalışan makine öğrenmesi modellerimiz sayesinde ürünlerin tahmini raf ömrünü analiz ediyor, sana en yakın ve en taze fırsatları saniyeler içinde sunuyoruz.
+        </p>
+        <div class="flex gap-8">
+          <div>
+            <div class="text-4xl font-black text-brandGreen mb-1">1.2K+</div>
+            <div class="text-sm text-gray-400 font-semibold uppercase tracking-wider">Kurtarılan Öğün</div>
+          </div>
+          <div>
+            <div class="text-4xl font-black text-brandGreen mb-1">50+</div>
+            <div class="text-sm text-gray-400 font-semibold uppercase tracking-wider">Aktif İşletme</div>
+          </div>
+        </div>
+      </div>
+      <div class="md:w-1/2">
+        <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800" alt="Tech and Food" class="rounded-3xl shadow-xl hover:scale-[1.02] transition-transform duration-500 object-cover h-64 w-full">
+      </div>
+    </div>
+
+    <div class="mt-12 mb-4 bg-brandDark rounded-3xl p-10 md:p-16 text-center text-white shadow-2xl relative overflow-hidden group">
+      <div class="absolute -top-24 -right-24 w-64 h-64 bg-brandGreen rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
+      <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-brandGreen rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-700"></div>
+      
+      <div class="relative z-10">
+        <h3 class="text-3xl md:text-4xl font-extrabold mb-4">İşletme Sahibi Misiniz?</h3>
+        <p class="text-green-50 max-w-2xl mx-auto mb-8 text-lg font-light">
+          Gün sonunda kalan taze ürünlerinizi ArtıGıda ağında paylaşın. Hem ek gelir elde edin hem de gıda israfını önleyerek doğaya katkıda bulunun.
+        </p>
+        <button class="bg-white text-brandDark font-extrabold px-10 py-4 rounded-full hover:bg-brandLight hover:scale-105 transition-all transform shadow-[0_0_20px_rgba(22,163,74,0.3)]">
+          Sisteme Kayıt Ol
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
