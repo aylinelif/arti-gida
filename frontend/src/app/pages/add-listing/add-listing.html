@@ -1,0 +1,61 @@
+<div class="container mx-auto px-4 py-12 max-w-3xl">
+  
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-extrabold text-brandDark mb-2">Yeni Fırsat Oluştur</h1>
+    <p class="text-gray-500">Kalan ürünlerinizi ArtıGıda ağına ekleyin, israfı anında önleyin.</p>
+  </div>
+
+  <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
+    <form class="space-y-6">
+      
+      <div class="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:bg-gray-50 transition relative overflow-hidden">
+        <div class="text-4xl mb-3" [class.animate-bounce]="isAnalyzing">📸</div>
+        
+        <p class="text-brandDark font-bold mb-1">
+          {{ isAnalyzing ? 'Yapay Zeka Fotoğrafı Analiz Ediyor...' : 'Ürün Fotoğrafı Yükle' }}
+        </p>
+        <p class="text-sm text-gray-400 mb-4" *ngIf="!isAnalyzing">PNG, JPG (Maks. 5MB)</p>
+        
+        <button type="button" (click)="simulateAI()" [disabled]="isAnalyzing"
+          class="bg-brandLight text-brandGreen border border-brandGreen px-4 py-2 rounded-full text-sm font-bold hover:bg-brandGreen hover:text-white transition flex items-center gap-2 mx-auto disabled:opacity-50">
+          <span [class.animate-spin]="isAnalyzing">✨</span> Yapay Zeka ile Otomatik Doldur
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-gray-700">İlan Başlığı</label>
+          <input type="text" [(ngModel)]="title" name="title" placeholder="Örn: Karışık Simit Paketi" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
+        </div>
+        
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-gray-700">Kategori</label>
+          <select [(ngModel)]="category" name="category" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
+            <option value="">Kategori Seçin</option>
+            <option value="Unlu Mamül">Unlu Mamül</option>
+            <option value="Ev Yemeği">Ev Yemeği</option>
+            <option value="Tatlı & Pasta">Tatlı & Pasta</option>
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-gray-700">Paket Adedi</label>
+          <input type="number" [(ngModel)]="quantity" name="quantity" placeholder="Örn: 5" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-gray-700">Tahmini Teslimat Saati</label>
+          <input type="text" [(ngModel)]="pickupTime" name="pickupTime" placeholder="Örn: 20:00 - 21:00" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
+        </div>
+      </div>
+
+      <div class="pt-4 mt-6 border-t border-gray-100">
+        <button type="button" (click)="submitForm()" class="w-full bg-brandDark text-white py-4 rounded-xl font-extrabold hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+          İlanı Yayınla
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
