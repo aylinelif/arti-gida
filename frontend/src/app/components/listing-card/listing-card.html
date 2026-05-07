@@ -1,0 +1,35 @@
+<div class="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer group">
+
+  <div class="relative">
+    <img [src]="listing.imageUrl" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105" alt="Yemek Resmi">
+    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
+      <span class="text-xs font-bold text-brandDark">⏳ {{listing.aiShelfLife}}</span>
+    </div>
+  </div>
+
+  <div class="p-5">
+    <div class="mb-3">
+      <span class="text-xs font-bold text-brandGreen bg-brandLight px-3 py-1 rounded-full border border-green-100">{{listing.aiCategory}}</span>
+    </div>
+
+    <h3 class="text-xl font-bold text-gray-800 mb-1">{{listing.title}}</h3>
+    <p class="text-sm text-gray-500 mb-5 flex items-center gap-1">
+      📍 {{listing.establishmentName}}
+    </p>
+
+    <div class="flex justify-between items-center mt-4 border-t border-gray-50 pt-4">
+      <div class="flex flex-col">
+        <span class="text-xs text-gray-400">Miktar</span>
+        <span class="text-sm font-bold text-brandDark">{{listing.quantity}} Paket</span>
+      </div>
+      <div class="flex flex-col text-right">
+        <span class="text-xs text-gray-400">Teslimat</span>
+        <span class="text-sm font-bold text-brandDark">{{listing.pickupTime}}</span>
+      </div>
+    </div>
+
+    <button class="w-full mt-5 bg-gray-50 text-brandGreen border border-brandGreen py-2.5 rounded-xl font-bold hover:bg-brandGreen hover:text-white transition-colors duration-300">
+      Rezerve Et
+    </button>
+  </div>
+</div>
