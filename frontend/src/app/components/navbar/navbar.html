@@ -6,13 +6,26 @@
       <span class="text-xl font-extrabold text-brandGreen tracking-tight">Artı<span class="text-brandDark">Gıda</span></span>
     </div>
 
-    <div class="flex items-center gap-5">
-      <button routerLink="/add-listing" class="text-sm font-bold bg-brandGreen text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-sm">
-        + Yeni İlan Ekle
-      </button>
-      <div class="w-9 h-9 bg-brandLight rounded-full flex items-center justify-center text-brandDark font-bold border border-brandGreen cursor-pointer hover:bg-brandGreen hover:text-white transition">
-        A
-      </div>
+    <div class="flex items-center gap-3 md:gap-5">
+      @if (auth.isLoggedIn) {
+        <a routerLink="/profile" class="text-sm font-bold text-brandDark hover:text-brandGreen transition flex items-center gap-1">
+          <span class="w-8 h-8 bg-brandLight rounded-full flex items-center justify-center text-brandGreen border border-brandGreen text-xs">
+            {{ auth.currentUser()?.name?.charAt(0) }}
+          </span>
+          <span class="hidden sm:inline">Profilim</span>
+        </a>
+      }
+      @if (auth.isLoggedIn && auth.isBusiness) {
+        <button routerLink="/add-listing" class="text-sm font-bold bg-brandGreen text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-sm">
+          + Yeni İlan Ekle
+        </button>
+      }
+      @if (!auth.isLoggedIn) {
+        <a routerLink="/login" class="text-sm font-bold text-brandDark hover:text-brandGreen transition">Giriş</a>
+        <a routerLink="/register" class="text-sm font-bold bg-brandGreen text-white px-4 py-2 rounded-lg hover:bg-green-700 transition shadow-sm">Kayıt Ol</a>
+      } @else {
+        <button (click)="logout()" class="text-sm font-bold text-gray-500 hover:text-red-600 transition">Çıkış</button>
+      }
     </div>
 
   </div>

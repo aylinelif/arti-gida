@@ -1,0 +1,43 @@
+<div class="min-h-screen bg-brandLight flex items-center justify-center px-4">
+  <div class="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
+    <div class="text-center mb-8">
+      <span class="text-4xl">🍃</span>
+      <h1 class="text-2xl font-extrabold text-brandDark mt-2">ArtıGıda'ya Giriş</h1>
+      <p class="text-gray-500 text-sm mt-1">Hesabınıza giriş yapın</p>
+    </div>
+
+    <form class="space-y-5" (ngSubmit)="submit()">
+      <div>
+        <label class="text-sm font-bold text-gray-700">E-posta</label>
+        <input type="email" [(ngModel)]="email" name="email" required
+          class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
+      </div>
+      <div>
+        <label class="text-sm font-bold text-gray-700">Şifre</label>
+        <input type="password" [(ngModel)]="password" name="password" required
+          class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
+      </div>
+
+      @if (errorMessage) {
+        <p class="text-red-600 text-sm font-medium">{{ errorMessage }}</p>
+      }
+
+      <button type="submit" [disabled]="isLoading"
+        class="w-full bg-brandGreen text-white py-3 rounded-xl font-bold hover:bg-green-700 transition disabled:opacity-50">
+        {{ isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap' }}
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-500 mt-6">
+      Hesabınız yok mu?
+      <a routerLink="/register" class="text-brandGreen font-bold hover:underline">Kayıt olun</a>
+    </p>
+
+    <div class="mt-6 p-4 bg-brandLight rounded-xl text-xs text-gray-600">
+      <p class="font-bold text-brandDark mb-1">Demo hesaplar</p>
+      <p>İşletme: isletme@artigida.local</p>
+      <p>Müşteri: ogrenci@artigida.local</p>
+      <p>Şifre: Artigida123!</p>
+    </div>
+  </div>
+</div>

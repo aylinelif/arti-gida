@@ -1,7 +1,7 @@
-<div class="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer group">
+<div [routerLink]="['/listings', listing.id]" class="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer group block">
 
   <div class="relative">
-    <img [src]="listing.imageUrl" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105" alt="Yemek Resmi">
+    <img [src]="listing.imageUrl || 'https://placehold.co/400x300?text=ArtiGida'" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105" alt="Yemek Resmi">
     <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
       <span class="text-xs font-bold text-brandDark">⏳ {{listing.aiShelfLife}}</span>
     </div>
@@ -28,8 +28,18 @@
       </div>
     </div>
 
-    <button class="w-full mt-5 bg-gray-50 text-brandGreen border border-brandGreen py-2.5 rounded-xl font-bold hover:bg-brandGreen hover:text-white transition-colors duration-300">
-      Rezerve Et
-    </button>
+    @if (listing.quantity > 0) {
+      <button
+        type="button"
+        (click)="reserve($event)"
+        [disabled]="isReserving"
+        class="w-full mt-5 bg-brandGreen text-white border border-brandGreen py-2.5 rounded-xl font-bold hover:bg-green-700 transition-colors duration-300 disabled:opacity-50">
+        {{ isReserving ? 'Rezerve ediliyor...' : 'Rezerve Et' }}
+      </button>
+    } @else {
+      <span class="block w-full mt-5 text-center bg-gray-100 text-gray-500 py-2.5 rounded-xl font-bold">
+        Stok Tükendi
+      </span>
+    }
   </div>
 </div>

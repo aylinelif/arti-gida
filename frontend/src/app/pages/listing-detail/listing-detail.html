@@ -1,0 +1,51 @@
+<div class="container mx-auto px-4 py-10 max-w-3xl">
+  @if (isLoading) {
+    <p class="text-center text-gray-500 py-20">Yükleniyor...</p>
+  } @else if (listing) {
+    <a routerLink="/" class="text-brandGreen font-bold text-sm mb-6 inline-block">← Ana sayfaya dön</a>
+    <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+      <img [src]="listing.imageUrl" class="w-full h-64 object-cover" alt="" />
+      <div class="p-8">
+        <span class="text-xs font-bold text-brandGreen bg-brandLight px-3 py-1 rounded-full">{{ listing.aiCategory }}</span>
+        <h1 class="text-3xl font-extrabold text-brandDark mt-4">{{ listing.title }}</h1>
+        <p class="text-gray-500 mt-2">📍 {{ listing.establishmentName }}</p>
+        @if (listing.description) {
+          <p class="text-gray-600 mt-4">{{ listing.description }}</p>
+        }
+        <div class="grid grid-cols-2 gap-4 mt-6">
+          <div class="bg-gray-50 rounded-xl p-4">
+            <p class="text-xs text-gray-400">Miktar</p>
+            <p class="font-bold text-brandDark">{{ listing.quantity }} Paket</p>
+          </div>
+          <div class="bg-gray-50 rounded-xl p-4">
+            <p class="text-xs text-gray-400">Teslimat</p>
+            <p class="font-bold text-brandDark">{{ listing.pickupTime }}</p>
+          </div>
+          <div class="bg-gray-50 rounded-xl p-4 col-span-2">
+            <p class="text-xs text-gray-400">AI Raf Ömrü</p>
+            <p class="font-bold text-brandDark">⏳ {{ listing.aiShelfLife }}</p>
+          </div>
+        </div>
+        @if (successMessage) {
+          <div class="mt-6 p-4 bg-brandLight text-brandGreen rounded-xl">
+            <p class="font-medium">{{ successMessage }}</p>
+            <button (click)="goToProfile()" class="mt-3 text-sm font-bold underline hover:text-green-800">
+              Profilimde görüntüle →
+            </button>
+          </div>
+        }
+        @if (errorMessage) {
+          <p class="mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-medium">{{ errorMessage }}</p>
+        }
+        @if (!successMessage && listing.quantity > 0) {
+          <button (click)="reserve()" [disabled]="isReserving"
+            class="w-full mt-6 bg-brandGreen text-white py-4 rounded-xl font-extrabold hover:bg-green-700 transition disabled:opacity-50">
+            {{ isReserving ? 'Rezerve ediliyor...' : 'Rezerve Et' }}
+          </button>
+        }
+      </div>
+    </div>
+  } @else {
+    <p class="text-center text-red-600">{{ errorMessage }}</p>
+  }
+</div>

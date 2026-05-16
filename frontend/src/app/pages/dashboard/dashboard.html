@@ -49,11 +49,25 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      @for (item of listings; track item.id) {
-        <app-listing-card [listing]="item"></app-listing-card>
-      }
-    </div>
+    @if (isLoading) {
+      <p class="text-center text-gray-500 py-12">İlanlar yükleniyor...</p>
+    } @else if (loadError) {
+      <div class="text-center py-12 bg-white rounded-2xl border border-red-100">
+        <p class="text-red-600 font-medium">İlanlar yüklenemedi.</p>
+        <p class="text-sm text-gray-500 mt-2 mb-4">Backend çalışıyor mu? (uvicorn port 8000)</p>
+        <button (click)="loadListings()" class="text-brandGreen font-bold hover:underline">Tekrar dene</button>
+      </div>
+    } @else if (listings.length === 0) {
+      <div class="text-center py-12 bg-white rounded-2xl border border-gray-100">
+        <p class="text-gray-500">Şu an aktif ilan bulunmuyor.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (item of listings; track item.id) {
+          <app-listing-card [listing]="item"></app-listing-card>
+        }
+      </div>
+    }
 
     <div class="mt-16 bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-10">
       <div class="md:w-1/2">

@@ -50,8 +50,8 @@
       </div>
 
       <div class="pt-4 mt-6 border-t border-gray-100">
-        <button type="button" (click)="submitForm()" class="w-full bg-brandDark text-white py-4 rounded-xl font-extrabold hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-          İlanı Yayınla
+        <button type="button" (click)="submitForm()" [disabled]="isSubmitting" class="w-full bg-brandDark text-white py-4 rounded-xl font-extrabold hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ isSubmitting ? 'Yayınlanıyor...' : 'İlanı Yayınla' }}
         </button>
       </div>
 
