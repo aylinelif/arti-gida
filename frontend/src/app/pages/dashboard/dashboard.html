@@ -11,8 +11,8 @@
 
       <div class="max-w-xl mx-auto bg-white rounded-full p-2 flex shadow-2xl transform transition hover:scale-105 duration-300">
         <span class="pl-4 pr-2 flex items-center text-gray-400">🔍</span>
-        <input type="text" placeholder="Yemek, işletme veya kategori ara..." class="flex-1 bg-transparent px-2 py-2 outline-none text-gray-700 w-full">
-        <button class="bg-brandDark text-white px-6 py-2 rounded-full font-bold hover:bg-gray-800 transition">
+        <input type="text" #searchBox (input)="onSearch(searchBox.value)" placeholder="Yemek, işletme veya kategori ara..." class="flex-1 bg-transparent px-2 py-2 outline-none text-gray-700 w-full">
+        <button (click)="onSearch(searchBox.value)" class="bg-brandDark text-white px-6 py-2 rounded-full font-bold hover:bg-gray-800 transition">
           Bul
         </button>
       </div>
@@ -22,29 +22,26 @@
   <div class="container mx-auto px-4">
     
     <div class="flex gap-4 overflow-x-auto pb-6 mb-4 scrollbar-hide">
-      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
-        🥐 Unlu Mamüller
-      </button>
-      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
-        🍲 Ev Yemekleri
-      </button>
-      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
-        🍰 Tatlı & Pasta
-      </button>
-      <button class="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap text-brandDark font-medium">
-        🥬 Taze Sebze/Meyve
-      </button>
+      @for (cat of categories; track cat.name) {
+        <button 
+          (click)="selectCategory(cat.name)"
+          [class.border-brandGreen]="selectedCategory === cat.name"
+          [class.bg-brandGreen]="selectedCategory === cat.name"
+          [class.text-white]="selectedCategory === cat.name"
+          [class.bg-white]="selectedCategory !== cat.name"
+          [class.text-brandDark]="selectedCategory !== cat.name"
+          class="flex items-center gap-2 px-5 py-3 rounded-full shadow-sm border border-gray-100 hover:border-brandGreen hover:shadow-md transition whitespace-nowrap font-medium">
+          {{ cat.emoji }} {{ cat.label }}
+        </button>
+      }
     </div>
 
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
       <h2 class="text-2xl font-extrabold text-brandDark">Yakınındaki Fırsatlar</h2>
       
       <div class="flex gap-3">
-        <button class="px-4 py-2 text-sm font-bold bg-white border border-gray-200 rounded-lg shadow-sm hover:border-brandGreen hover:text-brandGreen transition">
-          🔥 En Yeniler
-        </button>
-        <button class="px-4 py-2 text-sm font-bold bg-white border border-gray-200 rounded-lg shadow-sm hover:border-brandGreen hover:text-brandGreen transition">
-          🍰 Kategoriye Göre
+        <button (click)="onSearch(''); selectCategory('')" class="px-4 py-2 text-sm font-bold bg-white border border-gray-200 rounded-lg shadow-sm hover:border-brandGreen hover:text-brandGreen transition">
+          🔄 Filtreleri Sıfırla
         </button>
       </div>
     </div>
@@ -61,9 +58,14 @@
       <div class="text-center py-12 bg-white rounded-2xl border border-gray-100">
         <p class="text-gray-500">Şu an aktif ilan bulunmuyor.</p>
       </div>
+    } @else if (filteredListings.length === 0) {
+      <div class="text-center py-12 bg-white rounded-2xl border border-gray-100">
+        <p class="text-gray-500">Aramanıza veya seçtiğiniz kategoriye uygun ilan bulunamadı.</p>
+        <button (click)="onSearch(''); selectCategory(''); searchBox.value = ''" class="text-brandGreen font-bold hover:underline mt-2">Aramayı Temizle</button>
+      </div>
     } @else {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        @for (item of listings; track item.id) {
+        @for (item of filteredListings; track item.id) {
           <app-listing-card [listing]="item"></app-listing-card>
         }
       </div>

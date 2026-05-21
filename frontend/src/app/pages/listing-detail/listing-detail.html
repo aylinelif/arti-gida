@@ -4,7 +4,7 @@
   } @else if (listing) {
     <a routerLink="/" class="text-brandGreen font-bold text-sm mb-6 inline-block">← Ana sayfaya dön</a>
     <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-      <img [src]="listing.imageUrl" class="w-full h-64 object-cover" alt="" />
+      <img [src]="listing.imageUrl || 'https://placehold.co/800x600?text=ArtiGida'" class="w-full h-64 object-cover" alt="Yemek Resmi" />
       <div class="p-8">
         <span class="text-xs font-bold text-brandGreen bg-brandLight px-3 py-1 rounded-full">{{ listing.aiCategory }}</span>
         <h1 class="text-3xl font-extrabold text-brandDark mt-4">{{ listing.title }}</h1>

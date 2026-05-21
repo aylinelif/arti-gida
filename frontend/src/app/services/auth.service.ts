@@ -14,6 +14,31 @@ import {
 const TOKEN_KEY = 'artigida_token';
 const USER_KEY = 'artigida_user';
 
+const safeStorage = {
+  getItem(key: string): string | null {
+    try {
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
+        return localStorage.getItem(key);
+      }
+    } catch {}
+    return null;
+  },
+  setItem(key: string, value: string): void {
+    try {
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
+        localStorage.setItem(key, value);
+      }
+    } catch {}
+  },
+  removeItem(key: string): void {
+    try {
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
+        localStorage.removeItem(key);
+      }
+    } catch {}
+  }
+};
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly baseUrl = `${environment.apiUrl}/auth`;
@@ -25,7 +50,7 @@ export class AuthService {
   ) {}
 
   get token(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return safeStorage.getItem(TOKEN_KEY);
   }
 
   get isLoggedIn(): boolean {
@@ -53,20 +78,20 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    safeStorage.removeItem(TOKEN_KEY);
+    safeStorage.removeItem(USER_KEY);
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
 
   private persistSession(response: AuthResponse): void {
-    localStorage.setItem(TOKEN_KEY, response.access_token);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+    safeStorage.setItem(TOKEN_KEY, response.access_token);
+    safeStorage.setItem(USER_KEY, JSON.stringify(response.user));
     this.currentUser.set(response.user);
   }
 
   private loadUser(): User | null {
-    const raw = localStorage.getItem(USER_KEY);
+    const raw = safeStorage.getItem(USER_KEY);
     if (!raw) return null;
     try {
       return JSON.parse(raw) as User;

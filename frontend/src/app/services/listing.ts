@@ -29,10 +29,30 @@ export class ListingService {
   }
 
   buildPickupIso(pickupTime: string): string {
-    const start = pickupTime.split('-')[0].trim();
-    const [hours, minutes] = start.split(':').map((part) => Number(part));
-    const date = new Date();
-    date.setHours(hours, minutes || 0, 0, 0);
-    return date.toISOString();
+    try {
+      if (!pickupTime) {
+        throw new Error('Empty pickupTime');
+      }
+      // Extract the start time, e.g. "19:00 - 20:30" -> "19:00" or "19.00" -> "19.00"
+      const start = pickupTime.split('-')[0].trim();
+      // Replace dot separator with colon just in case, e.g. "19.00" -> "19:00"
+      const normalized = start.replace('.', ':');
+      const parts = normalized.split(':').map((part) => Number(part.trim()));
+      const hours = parts[0];
+      const minutes = parts[1];
+      
+      const date = new Date();
+      if (!isNaN(hours) && hours >= 0 && hours < 24) {
+        date.setHours(hours, isNaN(minutes) || minutes < 0 || minutes >= 60 ? 0 : minutes, 0, 0);
+      } else {
+        // Fallback: 3 hours from now
+        date.setHours(date.getHours() + 3);
+      }
+      return date.toISOString();
+    } catch {
+      const date = new Date();
+      date.setHours(date.getHours() + 3);
+      return date.toISOString();
+    }
   }
 }

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>PhishGuard Akademik Poster</title>
+    <style>
+        /* A4 SAYFA SABİTLEME */
+        @page { size: A4 portrait; margin: 0; }
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #525659; 
+            display: flex; 
+            justify-content: center; 
+            font-family: Arial, sans-serif; 
+        }
+        
+        /* 210mm x 297mm KESİN A4 BOYUTU */
+        .a4-poster {
+            width: 210mm;
+            height: 297mm;
+            background-color: #f8fafc;
+            padding: 10mm;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* BAŞLIK KISMI */
+        .header {
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            border-bottom: 5px solid #0284c7;
+            margin-bottom: 12px;
+        }
+        .header h1 { margin: 0; font-size: 22pt; text-transform: uppercase; }
+        .header h2 { margin: 6px 0 0 0; font-size: 13pt; color: #38bdf8; }
+        .header h3 { margin: 6px 0 0 0; font-size: 10pt; color: #94a3b8; font-weight: normal; }
+
+        /* ÖZET BÖLÜMÜ (TAM GENİŞLİK) */
+        .box-full {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        /* İKİ SÜTUNLU YAPI */
+        .content {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+        }
+        .col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* İÇ KUTULAR */
+        .box {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .box-title {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #0f172a;
+            border-left: 5px solid #0284c7;
+            padding-left: 8px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        p, ul, li { margin: 0; padding: 0; font-size: 10.5pt; line-height: 1.4; color: #334155; text-align: justify; }
+        ul { padding-left: 20px; margin-top: 5px; }
+        li { margin-bottom: 4px; }
+        .highlight { color: #0284c7; font-weight: bold; }
+
+        /* GÖRSEL ALANI - SENİN FOTOĞRAFIN İÇİN */
+        .img-container {
+            text-align: center;
+            margin: 10px 0;
+            background: #0f172a;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .img-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            display: block;
+        }
+        .caption { font-size: 9pt; color: #64748b; font-style: italic; margin-top: 6px; text-align: center;}
+
+        /* TABLOLAR - ASLA KAYMAZ FORMAT */
+        .matrix-container { display: flex; gap: 10px; margin-top: 10px; }
+        .matrix-wrapper { flex: 1; text-align: center; }
+        .matrix-title { font-size: 10pt; font-weight: bold; margin-bottom: 6px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 9.5pt; table-layout: fixed; }
+        th, td { border: 1px solid #94a3b8; padding: 6px 2px; text-align: center; vertical-align: middle; }
+        th { background: #f1f5f9; color: #0f172a; font-weight: bold; }
+        
+        /* GERÇEK YAZISI - DİKEY VE DÜZ */
+        .vertical-text {
+            width: 25px;
+            font-size: 9pt;
+            line-height: 1.2;
+            background: #f1f5f9;
+        }
+
+        .tp, .tn { background: #d1fae5; color: #065f46; font-weight: bold; }
+        .fp, .fn { background: #fee2e2; color: #991b1b; font-weight: bold; }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 12px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 10pt;
+            color: #475569;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="a4-poster">
+        
+        <div class="header">
+            <h1>PhishGuard: Hibrit Analiz Destekli Oltalama Tespit Platformu</h1>
+            <h2>Aylin Elif Gökdemir • Sudenaz Demirci • Özlem Akkuş</h2>
+            <h3>Zonguldak Bülent Ecevit Üniversitesi • Bilgisayar Mühendisliği Bölümü Bitirme Projesi</h3>
+        </div>
+
+        <div class="box-full">
+            <div class="box-title" style="border-left:none; border-bottom: 2px solid #0284c7;">Özet ve Giriş</div>
+            <p>PhishGuard, dijital dünyada giderek artan oltalama (phishing) saldırılarına karşı makine öğrenmesi ve bulut bilişim entegrasyonu ile proaktif bir savunma sunar. <span class="highlight">Vercel</span> ve <span class="highlight">Hugging Face</span> altyapıları üzerine inşa edilmiş sistem, e-posta ve URL yapılarını milisaniyeler içinde analiz ederek "Sıfırıncı Gün" tehditlerine karşı siber farkındalığı artırır.</p>
+        </div>
+
+        <div class="content">
+            
+            <div class="col">
+                <div class="box">
+                    <div class="box-title">Amaç ve Özgün Değer</div>
+                    <ul>
+                        <li>Geleneksel imza tabanlı (kara liste) filtrelerin açıklarını kapatmak.</li>
+                        <li>Kullanıcı verilerini hedef alan saldırıların anlık tespitini sağlamak.</li>
+                        <li>Bulut bilişim servisleri ile kurulum gerektirmeyen düşük gecikmeli SaaS mimarisi sunmak.</li>
+                    </ul>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Tehdit Analiz Konsolu</div>
+                    <div class="img-container">
+                        <img src="1000139217.jpg" alt="PhishGuard Arayüzü">
+                    </div>
+                    <div class="caption">Görsel 1. PhishGuard Analiz Konsolu Arayüzü</div>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Yöntem ve Teknoloji</div>
+                    <p>Sistem, modüler ve yüksek performanslı iki ana yapay zeka servisine dayanır:</p>
+                    <ul>
+                        <li><strong>Frontend:</strong> React ve Tailwind CSS ile global edge network dağıtımı (Vercel).</li>
+                        <li><strong>Backend:</strong> FastAPI ile yüksek performanslı API katmanı.</li>
+                        <li><strong>AI Katmanı:</strong> Scikit-learn kütüphanesi ile optimize edilmiş modeller.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="box">
+                    <div class="box-title">Makine Öğrenmesi Modelleri</div>
+                    <p>Yapay zeka modellerimiz CPU optimizasyonu yapılarak eğitilmiş olup, %80 eğitim ve %20 test olacak şekilde bölümlenmiştir:</p>
+                    <ul>
+                        <li><strong>URL Analizi (Random Forest):</strong> Çoklu karar ağacı yapısıyla aşırı öğrenme riski elenerek URL uzunluğu, SSL sertifikası ve IP anomalileri incelenir. <span class="highlight">Doğruluk: %92.0</span></li>
+                        <li><strong>E-posta Analizi (SVM):</strong> Doğrusal ayrım yeteneği yüksek algoritma ile kelime frekans kalıpları üzerinden tehdit sınıflandırması yapılır. <span class="highlight">Doğruluk: %95.7</span></li>
+                    </ul>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Model Performans Sonuçları</div>
+                    <p>Modellerin test veri seti üzerindeki doğruluk değerleri karmaşıklık matrisleri (Confusion Matrix) ile kanıtlanmıştır:</p>
+                    
+                    <div class="matrix-container">
+                        <div class="matrix-wrapper">
+                            <div class="matrix-title">E-posta (SVM)</div>
+                            <table>
+                                <tr>
+                                    <th colspan="2" rowspan="2" style="border:none; background:white;"></th>
+                                    <th colspan="2">Tahmin</th>
+                                </tr>
+                                <tr>
+                                    <th>Güv.</th>
+                                    <th>Olt.</th>
+                                </tr>
+                                <tr>
+                                    <th rowspan="2" class="vertical-text">G<br>E<br>R<br>Ç<br>E<br>K</th>
+                                    <th>Güv.</th>
+                                    <td class="tn">971</td>
+                                    <td class="fp">53</td>
+                                </tr>
+                                <tr>
+                                    <th>Olt.</th>
+                                    <td class="fn">64</td>
+                                    <td class="tp">1625</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="matrix-wrapper">
+                            <div class="matrix-title">URL (RF)</div>
+                            <table>
+                                <tr>
+                                    <th colspan="2" rowspan="2" style="border:none; background:white;"></th>
+                                    <th colspan="2">Tahmin</th>
+                                </tr>
+                                <tr>
+                                    <th>Güv.</th>
+                                    <th>Olt.</th>
+                                </tr>
+                                <tr>
+                                    <th rowspan="2" class="vertical-text">G<br>E<br>R<br>Ç<br>E<br>K</th>
+                                    <th>Güv.</th>
+                                    <td class="tn">88</td>
+                                    <td class="fp">12</td>
+                                </tr>
+                                <tr>
+                                    <th>Olt.</th>
+                                    <td class="fn">4</td>
+                                    <td class="tp">96</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Teknik Zorluklar ve Çözümler</div>
+                    <ul>
+                        <li><strong>Klasör Düzleştirme (Flattening):</strong> Bulut sunucu uyumluluğu için hiyerarşi optimize edilmiştir.</li>
+                        <li><strong>Joblib/Pickle:</strong> Dosya yolu hataları ⁠ sys.modules ⁠ runtime müdahalesiyle çözülmüştür.</li>
+                        <li><strong>Veri Kalıcılığı:</strong> Stateless yapıya karşı ⁠ os.fsync() ⁠ ile zorunlu yazma protokolü uygulanmıştır.</li>
+                    </ul>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Sonuç</div>
+                    <p>PhishGuard, yapay zeka ve bulut bilişim disiplinlerini harmanlayarak karmaşık oltalama saldırılarını <span class="highlight">2 saniyenin altında</span> tespit eden tam kapsamlı bir SaaS ürünü ortaya koymuştur. Gelecek çalışmalarda Derin Öğrenme modelleri hedeflenmektedir.</p>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="footer">
+            2026 • Zonguldak Bülent Ecevit Üniversitesi Mühendislik Fakültesi Bitirme Projesi
+        </div>
+
+    </div>
+
+</body>
+</html>

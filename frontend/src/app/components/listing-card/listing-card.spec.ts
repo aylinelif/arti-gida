@@ -1,18 +1,33 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
-import { ListingCard } from './listing-card';
+import { ListingCardComponent } from './listing-card';
 
-describe('ListingCard', () => {
-  let component: ListingCard;
-  let fixture: ComponentFixture<ListingCard>;
+describe('ListingCardComponent', () => {
+  let component: ListingCardComponent;
+  let fixture: ComponentFixture<ListingCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListingCard],
+      imports: [ListingCardComponent],
+      providers: [provideRouter([]), provideHttpClient()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ListingCard);
+    fixture = TestBed.createComponent(ListingCardComponent);
     component = fixture.componentInstance;
+    component.listing = {
+      id: 1,
+      establishmentName: 'Kampüs Fırın',
+      title: 'Peynirli Poğaça',
+      description: 'Poğaça',
+      quantity: 5,
+      pickupTime: '19:00',
+      aiCategory: 'Unlu Mamül',
+      aiShelfLife: '12 Saat',
+      imageUrl: '',
+      isActive: true
+    };
     await fixture.whenStable();
   });
 
