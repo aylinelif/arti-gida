@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
+import { getApiErrorMessage } from '../../utils/api-error';
 
 @Component({
   selector: 'app-login',
@@ -31,8 +32,8 @@ export class LoginPage {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
         this.router.navigateByUrl(returnUrl);
       },
-      error: () => {
-        this.errorMessage = 'Giriş başarısız. E-posta veya şifreyi kontrol edin.';
+      error: (err) => {
+        this.errorMessage = getApiErrorMessage(err, 'Giriş başarısız. E-posta veya şifreyi kontrol edin.');
         this.isLoading = false;
       },
       complete: () => (this.isLoading = false),

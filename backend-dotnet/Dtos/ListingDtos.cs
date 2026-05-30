@@ -19,6 +19,11 @@ namespace ArtiGida.API.Dtos
         [JsonPropertyName("ai_shelf_life")]
         public string? AiShelfLife { get; set; }
 
+        public string? Allergens { get; set; }
+        public double? CarbonSaved { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
         [JsonPropertyName("business_id")]
         public int? BusinessId { get; set; }
     }
@@ -39,6 +44,11 @@ namespace ArtiGida.API.Dtos
         [JsonPropertyName("ai_shelf_life")]
         public string? AiShelfLife { get; set; }
 
+        public string? Allergens { get; set; }
+        public double? CarbonSaved { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+
         [JsonPropertyName("is_active")]
         public bool? IsActive { get; set; }
     }
@@ -53,7 +63,17 @@ namespace ArtiGida.API.Dtos
         public string PickupTime { get; set; } = string.Empty;
         public string AiCategory { get; set; } = string.Empty;
         public string AiShelfLife { get; set; } = string.Empty;
+        public string Allergens { get; set; } = string.Empty;
+        public double CarbonSaved { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
+    }
+
+    public class ListingPredictPayload
+    {
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
     }
 }

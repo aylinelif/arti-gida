@@ -48,6 +48,7 @@ namespace ArtiGida.API.Controllers
                 Email = payload.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(payload.Password),
                 Role = payload.Role,
+                ProfilePictureUrl = payload.ProfilePictureUrl,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -64,7 +65,8 @@ namespace ArtiGida.API.Controllers
                     Id = user.Id,
                     Name = user.Name,
                     Email = user.Email,
-                    Role = user.Role
+                    Role = user.Role,
+                    ProfilePictureUrl = user.ProfilePictureUrl
                 }
             };
 
@@ -92,7 +94,8 @@ namespace ArtiGida.API.Controllers
                     Id = user.Id,
                     Name = user.Name,
                     Email = user.Email,
-                    Role = user.Role
+                    Role = user.Role,
+                    ProfilePictureUrl = user.ProfilePictureUrl
                 }
             };
 
@@ -122,7 +125,72 @@ namespace ArtiGida.API.Controllers
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                ProfilePictureUrl = user.ProfilePictureUrl
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPut("me")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateMe([FromBody] UserUpdate payload)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { detail = "Kimlik doğrulaması başarısız." });
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return Unauthorized(new { detail = "Kullanıcı bulunamadı." });
+            }
+
+            if (!string.IsNullOrWhiteSpace(payload.Email) && payload.Email.ToLower() != user.Email.ToLower())
+            {
+                var existing = await _context.Users.AnyAsync(u => u.Email.ToLower() == payload.Email.ToLower() && u.Id != userId);
+                if (existing)
+                {
+                    return BadRequest(new { detail = "Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor." });
+                }
+                user.Email = payload.Email;
+            }
+
+            if (!string.IsNullOrWhiteSpace(payload.Name))
+            {
+                user.Name = payload.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(payload.Password))
+            {
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(payload.Password);
+            }
+
+            if (payload.ProfilePictureUrl != null)
+            {
+                user.ProfilePictureUrl = payload.ProfilePictureUrl;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var token = _tokenService.CreateAccessToken(user);
+
+            var response = new TokenResponse
+            {
+                AccessToken = token,
+                User = new UserRead
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Role = user.Role,
+                    ProfilePictureUrl = user.ProfilePictureUrl
+                }
             };
 
             return Ok(response);

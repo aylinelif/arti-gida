@@ -7,6 +7,10 @@ export interface FoodListing {
   pickupTime: string;
   aiCategory: string;
   aiShelfLife: string;
+  allergens?: string;
+  carbonSaved?: number;
+  latitude?: number;
+  longitude?: number;
   imageUrl: string;
   isActive?: boolean;
 }

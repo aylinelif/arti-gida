@@ -10,6 +10,7 @@ import {
   RegisterRequest,
   User,
 } from '../models/user';
+import { ReservationService } from './reservation.service';
 
 const TOKEN_KEY = 'artigida_token';
 const USER_KEY = 'artigida_user';
@@ -47,6 +48,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private reservationService: ReservationService,
   ) {}
 
   get token(): string | null {
@@ -77,9 +79,16 @@ export class AuthService {
     );
   }
 
+  updateProfile(payload: { name?: string; email?: string; password?: string; profilePictureUrl?: string }): Observable<AuthResponse> {
+    return this.http.put<AuthResponse>(`${this.baseUrl}/me`, payload).pipe(
+      tap((res) => this.persistSession(res)),
+    );
+  }
+
   logout(): void {
     safeStorage.removeItem(TOKEN_KEY);
     safeStorage.removeItem(USER_KEY);
+    this.reservationService.clearCache();
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }

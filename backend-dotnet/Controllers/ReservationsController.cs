@@ -152,5 +152,119 @@ namespace ArtiGida.API.Controllers
             var result = reservations.Select(MapToReadDto);
             return Ok(result);
         }
+
+        [HttpGet("business")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BusinessReservationRead>))]
+        public async Task<IActionResult> GetBusinessReservations()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value;
+
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out var currentUserId))
+            {
+                return Unauthorized(new { detail = "Giriş yapmalısınız." });
+            }
+
+            if (roleClaim != "business")
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { detail = "Bu işlem yalnızca işletme hesabı ile yapılabilir." });
+            }
+
+            var reservations = await _context.Reservations
+                .Include(r => r.Customer)
+                .Include(r => r.Listing)
+                .Where(r => r.Listing!.BusinessId == currentUserId)
+                .OrderByDescending(r => r.ReservedAt)
+                .ToListAsync();
+
+            var result = reservations.Select(r => new BusinessReservationRead
+            {
+                Id = r.Id,
+                ListingId = r.ListingId,
+                ListingTitle = r.Listing?.Title ?? "Bilinmeyen Ürün",
+                CustomerName = r.Customer?.Name ?? "Bilinmeyen Müşteri",
+                CustomerEmail = r.Customer?.Email ?? "Bilinmeyen E-posta",
+                ReservedAt = r.ReservedAt,
+                Status = r.Status,
+                PickupTime = r.Listing != null ? TimeZoneInfo.ConvertTime(r.Listing.PickupTime, LocalTimeZone).ToString("H:mm") : ""
+            });
+
+            return Ok(result);
+        }
+
+        [HttpPut("{id}/status")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateReservationStatus(int id, [FromBody] ReservationStatusUpdate payload)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value;
+
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out var currentUserId))
+            {
+                return Unauthorized(new { detail = "Giriş yapmalısınız." });
+            }
+
+            var reservation = await _context.Reservations
+                .Include(r => r.Listing)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reservation == null)
+            {
+                return NotFound(new { detail = "Rezervasyon bulunamadı." });
+            }
+
+            // A customer can cancel their own reservation
+            // A business can change status (complete/cancel) of reservations for their listings
+            if (roleClaim == "business")
+            {
+                if (reservation.Listing!.BusinessId != currentUserId)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { detail = "Bu rezervasyonu güncelleme yetkiniz yok." });
+                }
+            }
+            else if (roleClaim == "user")
+            {
+                if (reservation.CustomerId != currentUserId)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new { detail = "Bu rezervasyonu güncelleme yetkiniz yok." });
+                }
+                if (payload.Status != ReservationStatus.cancelled)
+                {
+                    return BadRequest(new { detail = "Müşteriler yalnızca rezervasyonu iptal edebilir." });
+                }
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
+
+            var oldStatus = reservation.Status;
+            reservation.Status = payload.Status;
+
+            // If reservation is cancelled, restore listing quantity!
+            if (payload.Status == ReservationStatus.cancelled && oldStatus != ReservationStatus.cancelled)
+            {
+                reservation.Listing!.Quantity += 1;
+                reservation.Listing.IsActive = true;
+            }
+            // If it was cancelled and is now set back, reduce quantity
+            else if (oldStatus == ReservationStatus.cancelled && payload.Status != ReservationStatus.cancelled)
+            {
+                if (reservation.Listing!.Quantity <= 0)
+                {
+                    return BadRequest(new { detail = "İlanın stoğu kalmadığı için durum güncellenemiyor." });
+                }
+                reservation.Listing.Quantity -= 1;
+                if (reservation.Listing.Quantity == 0)
+                {
+                    reservation.Listing.IsActive = false;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new { detail = "Rezervasyon durumu güncellendi.", status = reservation.Status });
+        }
     }
 }

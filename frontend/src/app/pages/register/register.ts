@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { UserRole } from '../../models/user';
 import { AuthService } from '../../services/auth.service';
+import { getApiErrorMessage } from '../../utils/api-error';
 
 @Component({
   selector: 'app-register',
@@ -12,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './register.html',
 })
-export class RegisterPage {
+export class RegisterPage implements OnInit {
   name = '';
   email = '';
   password = '';
@@ -23,7 +24,17 @@ export class RegisterPage {
   constructor(
     private auth: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      const roleParam = params['role'];
+      if (roleParam === 'business' || roleParam === 'user') {
+        this.role = roleParam;
+      }
+    });
+  }
 
   submit(): void {
     this.isLoading = true;
@@ -35,8 +46,8 @@ export class RegisterPage {
       role: this.role,
     }).subscribe({
       next: () => this.router.navigate(['/']),
-      error: () => {
-        this.errorMessage = 'Kayıt başarısız. Bilgileri kontrol edin.';
+      error: (err) => {
+        this.errorMessage = getApiErrorMessage(err, 'Kayıt başarısız. Bilgileri kontrol edin.');
         this.isLoading = false;
       },
       complete: () => (this.isLoading = false),

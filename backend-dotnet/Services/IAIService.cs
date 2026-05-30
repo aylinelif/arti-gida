@@ -4,6 +4,6 @@ namespace ArtiGida.API.Services
 {
     public interface IAIService
     {
-        Task<(string Category, string ShelfLife)> PredictListingDetailsAsync(string title, string description);
+        Task<(string Category, string ShelfLife, string Allergens, double CarbonSaved)> PredictListingDetailsAsync(string title, string description);
     }
 }

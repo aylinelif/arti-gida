@@ -8,15 +8,15 @@
     <form class="space-y-4" (ngSubmit)="submit()">
       <div>
         <label class="text-sm font-bold text-gray-700">Ad Soyad</label>
-        <input type="text" [(ngModel)]="name" name="name" required class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
+        <input type="text" [(ngModel)]="name" name="name" required autocomplete="name" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
       </div>
       <div>
         <label class="text-sm font-bold text-gray-700">E-posta</label>
-        <input type="email" [(ngModel)]="email" name="email" required class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
+        <input type="email" [(ngModel)]="email" name="email" required autocomplete="email" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
       </div>
       <div>
         <label class="text-sm font-bold text-gray-700">Şifre</label>
-        <input type="password" [(ngModel)]="password" name="password" required minlength="6" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
+        <input type="password" [(ngModel)]="password" name="password" required minlength="6" autocomplete="new-password" class="mt-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-brandGreen" />
       </div>
       <div>
         <label class="text-sm font-bold text-gray-700">Hesap Türü</label>

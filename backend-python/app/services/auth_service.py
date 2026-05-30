@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
-from app.schemas.auth import TokenResponse, UserLogin, UserRead, UserRegister
+from app.schemas.auth import TokenResponse, UserLogin, UserRead, UserRegister, UserUpdate
 
 
 class AuthService:
@@ -25,6 +25,7 @@ class AuthService:
             email=payload.email,
             password_hash=hash_password(payload.password),
             role=payload.role,
+            profile_picture_url=payload.profile_picture_url,
         )
         self.session.add(user)
         self.session.commit()
@@ -42,15 +43,43 @@ class AuthService:
             )
         return self._build_token_response(user)
 
+    def update_profile(self, user: User, payload: UserUpdate) -> TokenResponse:
+        if payload.email and payload.email.lower() != user.email.lower():
+            existing = self.session.exec(
+                select(User).where(User.email == payload.email).where(User.id != user.id)
+            ).first()
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor.",
+                )
+            user.email = payload.email
+
+        if payload.name:
+            user.name = payload.name
+
+        if payload.password:
+            user.password_hash = hash_password(payload.password)
+
+        if payload.profile_picture_url is not None:
+            user.profile_picture_url = payload.profile_picture_url
+
+        self.session.add(user)
+        self.session.commit()
+        self.session.refresh(user)
+        return self._build_token_response(user)
+
     def _build_token_response(self, user: User) -> TokenResponse:
         role = user.role.value if hasattr(user.role, "value") else str(user.role)
         token = create_access_token(str(user.id), role)
         return TokenResponse(
             access_token=token,
+            token_type="bearer",
             user=UserRead(
                 id=user.id,
                 name=user.name,
                 email=user.email,
                 role=user.role,
+                profile_picture_url=user.profile_picture_url,
             ),
         )

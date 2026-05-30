@@ -16,3 +16,18 @@ class ReservationRead(SQLModel):
     pickupTime: str
     status: ReservationStatus
     reservedAt: datetime
+
+
+class BusinessReservationRead(SQLModel):
+    id: int
+    listingId: int
+    listingTitle: str
+    customerName: str
+    customerEmail: str
+    reservedAt: datetime
+    status: ReservationStatus
+    pickupTime: str
+
+
+class ReservationStatusUpdate(SQLModel):
+    status: ReservationStatus

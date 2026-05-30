@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { ListingService } from '../../services/listing';
+import { ToastService } from '../../services/toast.service';
+import { getApiErrorMessage } from '../../utils/api-error';
 
 @Component({
   selector: 'app-add-listing',
@@ -26,31 +28,51 @@ export class AddListing implements OnInit {
     private router: Router,
     private listingService: ListingService,
     private auth: AuthService,
+    private toast: ToastService,
   ) {}
 
   ngOnInit(): void {
     if (!this.auth.isLoggedIn || !this.auth.isBusiness) {
-      alert('İlan eklemek için işletme hesabıyla giriş yapmalısınız.');
+      this.toast.warning('İlan eklemek için işletme hesabıyla giriş yapmalısınız.');
       this.router.navigate(['/login']);
     }
   }
 
-  simulateAI(): void {
+  runAIPrediction(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (!this.title.trim()) {
+      this.toast.warning('Yapay zeka analizi için lütfen önce ilan başlığı girin.');
+      return;
+    }
+
     this.isAnalyzing = true;
-    setTimeout(() => {
-      this.title = 'Taze Fırın Simit ve Poğaça Paketi';
-      this.category = 'Unlu Mamül';
-      this.quantity = 5;
-      this.pickupTime = '19:00 - 20:30';
-      this.aiShelfLife = '12 Saat';
-      this.description = 'Gün sonu taze unlu mamül paketi.';
-      this.isAnalyzing = false;
-    }, 1500);
+    this.listingService.predictListingDetails(this.title, this.description).subscribe({
+      next: (res) => {
+        this.category = res.category;
+        this.aiShelfLife = res.shelfLife;
+        this.isAnalyzing = false;
+        this.toast.success('Yapay zeka analizi başarıyla tamamlandı!');
+      },
+      error: (err) => {
+        console.error('AI Tahmini başarısız:', err);
+        this.toast.error('Yapay zeka analizi sırasında bir hata oluştu. Lütfen alanları manuel doldurun.');
+        this.isAnalyzing = false;
+      },
+    });
   }
 
-  submitForm(): void {
+  submitForm(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     if (!this.title || !this.category || !this.quantity || !this.pickupTime) {
-      alert('Lütfen tüm alanları doldurun.');
+      this.toast.warning('Lütfen tüm alanları doldurun.');
       return;
     }
 
@@ -66,12 +88,12 @@ export class AddListing implements OnInit {
       })
       .subscribe({
         next: () => {
-          alert('Harika! İlan başarıyla sisteme eklendi.');
+          this.toast.success('Harika! İlan başarıyla sisteme eklendi.');
           this.router.navigate(['/']);
         },
         error: (err) => {
-          const msg = err.error?.detail || 'İlan eklenirken bir hata oluştu.';
-          alert(msg);
+          const msg = getApiErrorMessage(err, 'İlan eklenirken bir hata oluştu.');
+          this.toast.error(msg);
           this.isSubmitting = false;
         },
       });

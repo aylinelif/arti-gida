@@ -57,6 +57,10 @@ namespace ArtiGida.API.Data
                     .IsRequired();
                 entity.Property(e => e.ImageUrl).HasColumnName("image_url").HasColumnType("text");
                 entity.Property(e => e.AiShelfLife).HasColumnName("ai_shelf_life").HasMaxLength(50);
+                entity.Property(e => e.Allergens).HasColumnName("allergens").HasMaxLength(255);
+                entity.Property(e => e.CarbonSaved).HasColumnName("carbon_saved").IsRequired();
+                entity.Property(e => e.Latitude).HasColumnName("latitude");
+                entity.Property(e => e.Longitude).HasColumnName("longitude");
                 entity.Property(e => e.IsActive).HasColumnName("is_active").IsRequired();
                 entity.Property(e => e.BusinessId).HasColumnName("business_id").IsRequired();
                 entity.Property(e => e.CreatedAt)

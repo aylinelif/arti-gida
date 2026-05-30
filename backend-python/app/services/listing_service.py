@@ -22,6 +22,10 @@ def _to_listing_read(listing: Listing, business_name: str) -> ListingRead:
         pickupTime=_format_pickup_time(listing.pickup_time),
         aiCategory=listing.category,
         aiShelfLife=listing.ai_shelf_life or "",
+        allergens=listing.allergens or "Yok",
+        carbonSaved=listing.carbon_saved or 0.0,
+        latitude=listing.latitude,
+        longitude=listing.longitude,
         imageUrl=listing.image_url or "",
         isActive=listing.is_active,
     )
@@ -55,6 +59,25 @@ class ListingService:
     def create(self, payload: ListingCreate, business_id: int) -> ListingRead:
         business = self._get_business_or_404(business_id)
 
+        lat = payload.latitude
+        lng = payload.longitude
+        if lat is None or lng is None:
+            b_name = business.name.lower()
+            if "fırın" in b_name:
+                lat, lng = 41.4504, 31.7972
+            elif "lokanta" in b_name:
+                lat, lng = 41.4513, 31.7981
+            elif "coffee" in b_name or "kahve" in b_name:
+                lat, lng = 41.4520, 31.7995
+            elif "market" in b_name:
+                lat, lng = 41.4495, 31.7950
+            elif "tatlı" in b_name:
+                lat, lng = 41.4530, 31.8010
+            else:
+                import random
+                lat = 41.4500 + (random.random() - 0.5) * 0.008
+                lng = 31.7970 + (random.random() - 0.5) * 0.008
+
         listing = Listing(
             title=payload.title,
             description=payload.description,
@@ -63,6 +86,10 @@ class ListingService:
             pickup_time=payload.pickup_time,
             image_url=payload.image_url,
             ai_shelf_life=payload.ai_shelf_life,
+            allergens=payload.allergens,
+            carbon_saved=payload.carbon_saved or 1.5,
+            latitude=lat,
+            longitude=lng,
             business_id=business_id,
         )
         self.session.add(listing)

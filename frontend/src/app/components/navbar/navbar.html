@@ -9,9 +9,13 @@
     <div class="flex items-center gap-3 md:gap-5">
       @if (auth.isLoggedIn) {
         <a routerLink="/profile" class="text-sm font-bold text-brandDark hover:text-brandGreen transition flex items-center gap-1">
-          <span class="w-8 h-8 bg-brandLight rounded-full flex items-center justify-center text-brandGreen border border-brandGreen text-xs">
-            {{ auth.currentUser()?.name?.charAt(0) }}
-          </span>
+          @if (auth.currentUser()?.profilePictureUrl) {
+            <img [src]="auth.currentUser()?.profilePictureUrl" alt="Avatar" class="w-8 h-8 rounded-full border border-brandGreen object-cover">
+          } @else {
+            <span class="w-8 h-8 bg-brandLight rounded-full flex items-center justify-center text-brandGreen border border-brandGreen text-xs">
+              {{ auth.currentUser()?.name?.charAt(0) }}
+            </span>
+          }
           <span class="hidden sm:inline">Profilim</span>
         </a>
       }

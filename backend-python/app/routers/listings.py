@@ -63,3 +63,16 @@ def update_listing(
     service: ListingService = Depends(get_listing_service),
 ) -> ListingRead:
     return service.update(listing_id, payload, current_user)
+
+
+class ListingPredictPayload(SQLModel):
+    title: str
+    description: Optional[str] = None
+
+
+@router.post("/predict")
+async def predict_listing(
+    payload: ListingPredictPayload,
+):
+    from app.services.ai_service import predict_listing_details
+    return await predict_listing_details(payload.title, payload.description or "")

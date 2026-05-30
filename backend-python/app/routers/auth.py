@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
 from app.database import get_db
-from app.schemas.auth import TokenResponse, UserLogin, UserRegister, UserRead
+from app.schemas.auth import TokenResponse, UserLogin, UserRegister, UserRead, UserUpdate
 from app.core.deps import get_current_user
 from app.models.user import User
 from app.services.auth_service import AuthService
@@ -46,4 +46,14 @@ def me(current_user: User = Depends(get_current_user)) -> UserRead:
         name=current_user.name,
         email=current_user.email,
         role=current_user.role,
+        profile_picture_url=current_user.profile_picture_url,
     )
+
+
+@router.put("/me", response_model=TokenResponse)
+def update_profile(
+    payload: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    service: AuthService = Depends(get_auth_service),
+) -> TokenResponse:
+    return service.update_profile(current_user, payload)

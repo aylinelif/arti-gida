@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FoodListing } from '../../models/food-listing';
 import { AuthService } from '../../services/auth.service';
 import { ReservationService } from '../../services/reservation.service';
+import { ToastService } from '../../services/toast.service';
 import { getApiErrorMessage } from '../../utils/api-error';
 
 @Component({
@@ -24,6 +25,7 @@ export class ListingCardComponent {
     private auth: AuthService,
     private reservationService: ReservationService,
     private router: Router,
+    private toast: ToastService,
   ) {}
 
   reserve(event: Event): void {
@@ -38,12 +40,12 @@ export class ListingCardComponent {
     }
 
     if (!this.auth.isCustomer) {
-      alert('Rezervasyon için müşteri hesabıyla giriş yapın.');
+      this.toast.warning('Rezervasyon için müşteri hesabıyla giriş yapın.');
       return;
     }
 
     if (this.listing.quantity <= 0) {
-      alert('Bu ilan için stok kalmamış.');
+      this.toast.warning('Bu ilan için stok kalmamış.');
       return;
     }
 
@@ -54,16 +56,14 @@ export class ListingCardComponent {
       next: () => {
         this.isReserving = false;
         this.listing = { ...this.listing, quantity: this.listing.quantity - 1 };
-        const goProfile = confirm(
-          `Rezervasyon başarılı! Ürününüzü ${this.listing.pickupTime} saatinde alabilirsiniz.\n\nProfilinizde görmek ister misiniz?`,
-        );
-        if (goProfile) {
+        this.toast.success(`Rezervasyon başarılı! Profilinize yönlendiriliyorsunuz.`);
+        setTimeout(() => {
           this.router.navigate(['/profile']);
-        }
+        }, 1500);
       },
       error: (err) => {
         this.isReserving = false;
-        alert(getApiErrorMessage(err, 'Rezervasyon yapılamadı.'));
+        this.toast.error(getApiErrorMessage(err, 'Rezervasyon yapılamadı.'));
       },
     });
   }

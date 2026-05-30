@@ -3,32 +3,253 @@
   <p class="text-gray-500 mb-8">Hesap bilgileriniz ve rezervasyonlarınız</p>
 
   @if (auth.currentUser(); as user) {
-    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm mb-8 flex items-center gap-4">
-      <div class="w-14 h-14 bg-brandLight rounded-full flex items-center justify-center text-xl font-bold text-brandGreen border border-brandGreen">
-        {{ user.name.charAt(0) }}
-      </div>
-      <div>
-        <p class="font-bold text-lg text-brandDark">{{ user.name }}</p>
-        <p class="text-sm text-gray-500">{{ user.email }}</p>
-        <span class="inline-block mt-1 text-xs font-bold px-2 py-0.5 rounded-full bg-brandLight text-brandGreen">
-          {{ user.role === 'business' ? 'İşletme' : 'Müşteri' }}
-        </span>
+    <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm mb-8 relative overflow-hidden">
+      <!-- Success/Error Banners -->
+      @if (updateSuccess) {
+        <div class="mb-4 p-3 bg-brandLight text-brandGreen rounded-xl text-xs font-semibold border border-green-200/50">
+          ✅ {{ updateSuccess }}
+        </div>
+      }
+      @if (updateError) {
+        <div class="mb-4 p-3 bg-red-50 text-red-600 rounded-xl text-xs font-semibold border border-red-200/30">
+          ⚠️ {{ updateError }}
+        </div>
+      }
+
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+          @if (user.profilePictureUrl) {
+            <img [src]="user.profilePictureUrl" alt="Avatar" class="w-14 h-14 rounded-full border border-brandGreen object-cover shrink-0">
+          } @else {
+            <div class="w-14 h-14 bg-brandLight rounded-full flex items-center justify-center text-xl font-bold text-brandGreen border border-brandGreen shrink-0">
+              {{ user.name.charAt(0) }}
+            </div>
+          }
+          
+          @if (!isEditing) {
+            <div class="flex-1">
+              <p class="font-extrabold text-lg text-brandDark">{{ user.name }}</p>
+              <p class="text-sm text-gray-500">{{ user.email }}</p>
+              <span class="inline-block mt-1.5 text-xs font-bold px-2.5 py-0.5 rounded-full bg-brandLight text-brandGreen border border-green-100">
+                {{ user.role === 'business' ? 'İşletme Hesabı' : 'Müşteri Hesabı' }}
+              </span>
+            </div>
+            <button (click)="toggleEdit()" class="text-xs font-bold text-brandGreen bg-brandLight border border-green-100 px-3.5 py-2.5 rounded-xl hover:bg-brandGreen hover:text-white transition shadow-sm shrink-0">
+              ✏️ Profili Düzenle
+            </button>
+          } @else {
+            <form (submit)="saveProfile(); $event.preventDefault()" class="flex-1 w-full">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Ad / İşletme Adı</label>
+                  <input type="text" [(ngModel)]="editName" name="editName" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brandGreen" placeholder="Ad Soyad veya İşletme Adı" autocomplete="name">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">E-posta Adresi</label>
+                  <input type="email" [(ngModel)]="editEmail" name="editEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brandGreen" placeholder="E-posta" autocomplete="username">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Yeni Şifre (İsteğe Bağlı)</label>
+                  <input type="password" [(ngModel)]="editPassword" name="editPassword" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brandGreen" placeholder="Yeni Şifre" autocomplete="new-password">
+                </div>
+              </div>
+
+              <!-- Avatar Selector Grid -->
+              <div class="mt-4 border-t border-gray-100 pt-4 w-full">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Profil Fotoğrafı Seçin</label>
+                <div class="flex flex-wrap gap-3 items-center">
+                  @for (avatar of avatars; track avatar) {
+                    <button type="button" (click)="selectAvatar(avatar)" 
+                      class="w-12 h-12 rounded-full border-2 overflow-hidden transition p-0.5 hover:scale-105 bg-gray-50 flex items-center justify-center"
+                      [class.border-brandGreen]="editProfilePictureUrl === avatar"
+                      [class.border-gray-200]="editProfilePictureUrl !== avatar">
+                      <img [src]="avatar" alt="Avatar" class="w-full h-full rounded-full object-cover">
+                    </button>
+                  }
+                </div>
+                <div class="mt-3">
+                  <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Veya Özel Fotoğraf URL'si</label>
+                  <input type="text" [(ngModel)]="editProfilePictureUrl" name="editProfilePictureUrl" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-brandGreen" placeholder="https://example.com/resim.jpg">
+                </div>
+              </div>
+
+              <div class="flex gap-2 w-full md:w-auto justify-end mt-4 pt-3 border-t border-gray-50">
+                <button type="submit" [disabled]="isSaving" class="bg-brandGreen text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-green-700 transition shadow-sm">
+                  {{ isSaving ? 'Kaydediliyor...' : 'Kaydet' }}
+                </button>
+                <button type="button" (click)="cancelEdit()" class="bg-gray-100 text-gray-500 px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-200 transition border border-gray-200">
+                  İptal
+                </button>
+              </div>
+            </form>
+          }
+        </div>
       </div>
     </div>
   }
 
   @if (auth.isBusiness) {
-    <div class="bg-white rounded-2xl p-8 border border-gray-100 text-center">
-      <p class="text-gray-600 mb-4">İşletme hesabıyla ilan ekleyebilirsiniz.</p>
-      <a routerLink="/add-listing" class="inline-block bg-brandGreen text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition">
+    <!-- Business Eco Impact Dashboard -->
+    <div class="bg-gradient-to-br from-brandGreen/10 to-green-50 rounded-3xl p-6 border border-green-100 shadow-sm mb-8">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-3xl">🌱</span>
+        <div>
+          <h3 class="text-lg font-extrabold text-brandDark">İşletmenizin Yeşil Etkisi</h3>
+          <p class="text-xs text-gray-500">Gıda kurtararak gezegene sağladığınız çevresel faydalar</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-2xl p-4 border border-gray-50 shadow-sm text-center">
+          <p class="text-2xl font-black text-brandGreen">{{ totalBusinessRescued }}</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Kurtarılan Öğün</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-gray-50 shadow-sm text-center">
+          <p class="text-2xl font-black text-brandGreen">{{ businessCo2Saved }} kg</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Engellenen CO₂</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-gray-50 shadow-sm text-center">
+          <p class="text-2xl font-black text-brandGreen">{{ businessWaterSaved }} L</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Kurtarılan Su</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-center p-4 bg-white rounded-2xl border border-green-100/50">
+        <div class="w-12 h-12 rounded-full border flex items-center justify-center text-2xl shadow-inner shrink-0 {{ businessBadge.color }}">
+          {{ businessBadge.icon }}
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-400 font-bold">Unvanınız:</span>
+            <span class="text-xs font-black uppercase tracking-wider text-brandGreen">{{ businessBadge.name }}</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-0.5">{{ businessBadge.desc }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-brandDark">Gelen Rezervasyonlar</h2>
+      <a routerLink="/add-listing" class="bg-brandGreen text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-green-700 transition shadow-sm">
         + Yeni İlan Ekle
       </a>
     </div>
+
+    @if (isLoading) {
+      <div class="space-y-4 animate-pulse">
+        <div class="bg-white rounded-2xl border border-gray-100 h-28 w-full"></div>
+        <div class="bg-white rounded-2xl border border-gray-100 h-28 w-full"></div>
+      </div>
+    } @else if (loadError) {
+      <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4 font-medium">Gelen rezervasyonlar yüklenemedi.</div>
+      <button (click)="loadBusinessReservations()" class="text-brandGreen font-bold hover:underline">Tekrar dene</button>
+    } @else if (businessReservations.length === 0) {
+      <div class="bg-white rounded-2xl p-10 text-center border border-gray-100 shadow-sm">
+        <p class="text-5xl mb-3">🔔</p>
+        <p class="text-gray-500">Henüz ilanlarınıza yapılan bir rezervasyon bulunmuyor.</p>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (item of businessReservations; track item.id) {
+          <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <span class="text-xs font-bold text-brandGreen bg-brandLight px-2 py-0.5 rounded-full uppercase tracking-wider">İlan</span>
+                <h3 class="font-extrabold text-lg text-brandDark mt-1">{{ item.listingTitle }}</h3>
+                
+                <div class="mt-3 space-y-1">
+                  <p class="text-sm text-gray-600 flex items-center gap-1">
+                    👤 <strong>Müşteri:</strong> {{ item.customerName }} ({{ item.customerEmail }})
+                  </p>
+                  <p class="text-sm text-gray-600 flex items-center gap-1">
+                    ⏰ <strong>Teslimat:</strong> {{ item.pickupTime }}
+                  </p>
+                  <p class="text-xs text-gray-400">
+                    Rezervasyon Tarihi: {{ item.reservedAt | date:'dd MMM yyyy, HH:mm' }}
+                  </p>
+                </div>
+              </div>
+              
+              <div class="flex flex-col items-end gap-3 w-full md:w-auto shrink-0">
+                <span class="text-xs font-bold px-3 py-1 rounded-full text-center block w-full md:w-auto"
+                  [class.bg-brandLight]="item.status === 'pending'"
+                  [class.text-brandGreen]="item.status === 'pending'"
+                  [class.bg-green-100]="item.status === 'completed'"
+                  [class.text-green-800]="item.status === 'completed'"
+                  [class.bg-red-50]="item.status === 'cancelled'"
+                  [class.text-red-600]="item.status === 'cancelled'">
+                  {{ item.status === 'pending' ? 'Bekliyor' : item.status === 'completed' ? 'Tamamlandı' : 'İptal Edildi' }}
+                </span>
+
+                @if (item.status === 'pending') {
+                  <div class="flex gap-2 w-full md:w-auto">
+                    <button (click)="updateReservationStatus(item.id, 'completed')"
+                      class="flex-1 md:flex-none text-xs font-bold bg-brandGreen text-white px-3 py-2 rounded-xl hover:bg-green-700 transition">
+                      Tamamla
+                    </button>
+                    <button (click)="updateReservationStatus(item.id, 'cancelled')"
+                      class="flex-1 md:flex-none text-xs font-bold bg-red-50 text-red-600 border border-red-200 px-3 py-2 rounded-xl hover:bg-red-600 hover:text-white transition">
+                      İptal Et
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
   } @else {
+    <!-- Customer Eco Impact Dashboard -->
+    <div class="bg-gradient-to-br from-brandGreen/10 to-green-50 rounded-3xl p-6 border border-green-100 shadow-sm mb-8">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-3xl">🌍</span>
+        <div>
+          <h3 class="text-lg font-extrabold text-brandDark">Kişisel Yeşil Etkiniz</h3>
+          <p class="text-xs text-gray-500">Yiyecekleri çöpe gitmekten kurtararak yaptığınız tasarruflar</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl p-4 border border-gray-50 shadow-sm text-center">
+          <p class="text-2xl font-black text-brandGreen">{{ totalRescuedMeals }}</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Kurtarılan Öğün</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-gray-50 shadow-sm text-center">
+          <p class="text-2xl font-black text-brandGreen">{{ moneySaved }} ₺</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Bütçe Tasarrufu</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-gray-50 shadow-sm text-center">
+          <p class="text-2xl font-black text-brandGreen">{{ co2Saved }} kg</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Engellenen CO₂</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-gray-50 shadow-sm text-center">
+          <p class="text-2xl font-black text-brandGreen">{{ waterSaved }} L</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Su Tasarrufu</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-center p-4 bg-white rounded-2xl border border-green-100/50">
+        <div class="w-12 h-12 rounded-full border flex items-center justify-center text-2xl shadow-inner shrink-0 {{ ecoBadge.color }}">
+          {{ ecoBadge.icon }}
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-gray-400 font-bold">Rozet Seviyeniz:</span>
+            <span class="text-xs font-black uppercase tracking-wider text-brandGreen">{{ ecoBadge.name }}</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-0.5">{{ ecoBadge.desc }}</p>
+        </div>
+      </div>
+    </div>
+
     <h2 class="text-xl font-bold text-brandDark mb-4">Rezervasyonlarım</h2>
 
     @if (isLoading) {
-      <p class="text-gray-500">Yükleniyor...</p>
+      <div class="space-y-4 animate-pulse">
+        <div class="bg-white rounded-2xl border border-gray-100 h-24 w-full"></div>
+        <div class="bg-white rounded-2xl border border-gray-100 h-24 w-full"></div>
+      </div>
     } @else if (loadError) {
       <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4">Rezervasyonlar yüklenemedi.</div>
       <button (click)="loadReservations()" class="text-brandGreen font-bold hover:underline">Tekrar dene</button>
@@ -52,9 +273,20 @@
                 <p class="text-xs text-gray-400 mt-2">
                   {{ item.reservedAt | date:'dd MMM yyyy, HH:mm' }}
                 </p>
+                @if (item.status === 'pending') {
+                  <button (click)="updateReservationStatus(item.id, 'cancelled')"
+                    class="mt-3 text-xs font-bold text-red-600 hover:text-red-800 underline block">
+                    İptal Et
+                  </button>
+                }
               </div>
               <span class="text-xs font-bold px-3 py-1 rounded-full shrink-0"
-                [class]="item.status === 'pending' ? 'bg-brandLight text-brandGreen' : 'bg-gray-100 text-gray-600'">
+                [class.bg-brandLight]="item.status === 'pending'"
+                [class.text-brandGreen]="item.status === 'pending'"
+                [class.bg-green-100]="item.status === 'completed'"
+                [class.text-green-800]="item.status === 'completed'"
+                [class.bg-red-50]="item.status === 'cancelled'"
+                [class.text-red-600]="item.status === 'cancelled'">
                 {{ item.status === 'pending' ? 'Bekliyor' : item.status === 'completed' ? 'Tamamlandı' : 'İptal' }}
               </span>
             </div>

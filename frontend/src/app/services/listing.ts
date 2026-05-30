@@ -17,7 +17,7 @@ export class ListingService {
   }
 
   getAllListings(): Observable<FoodListing[]> {
-    return this.http.get<FoodListing[]>(`${this.baseUrl}/`);
+    return this.http.get<FoodListing[]>(`${this.baseUrl}`);
   }
 
   getListingById(id: number): Observable<FoodListing> {
@@ -25,7 +25,11 @@ export class ListingService {
   }
 
   createListing(payload: ListingCreate): Observable<FoodListing> {
-    return this.http.post<FoodListing>(`${this.baseUrl}/`, payload);
+    return this.http.post<FoodListing>(`${this.baseUrl}`, payload);
+  }
+
+  predictListingDetails(title: string, description: string): Observable<{ category: string; shelfLife: string }> {
+    return this.http.post<{ category: string; shelfLife: string }>(`${this.baseUrl}/predict`, { title, description });
   }
 
   buildPickupIso(pickupTime: string): string {

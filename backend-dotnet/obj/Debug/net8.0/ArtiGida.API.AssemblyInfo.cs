@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArtiGida.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+617a2cd1cf71de1c1b40281d6bd20895e839f8a9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5b80bd4407b81bea7cef6bddcee1e67f99bafe72")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArtiGida.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArtiGida.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

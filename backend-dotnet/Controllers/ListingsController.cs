@@ -62,6 +62,10 @@ namespace ArtiGida.API.Controllers
                 PickupTime = localTime.ToString("H:mm"), // formats as HH:mm in local time
                 AiCategory = listing.Category,
                 AiShelfLife = listing.AiShelfLife ?? "",
+                Allergens = listing.Allergens ?? "Yok",
+                CarbonSaved = listing.CarbonSaved,
+                Latitude = listing.Latitude,
+                Longitude = listing.Longitude,
                 ImageUrl = listing.ImageUrl ?? "",
                 IsActive = listing.IsActive
             };
@@ -99,18 +103,41 @@ namespace ArtiGida.API.Controllers
                 return BadRequest(new { detail = "Geçersiz işletme." });
             }
 
-            // Run AI predictions for category and shelf life
-            var (predictedCategory, predictedShelfLife) = await _aiService.PredictListingDetailsAsync(payload.Title, payload.Description ?? "");
+            // Run AI predictions for category, shelf life, allergens, and carbon saved
+            var (predictedCategory, predictedShelfLife, predictedAllergens, predictedCarbonSaved) = 
+                await _aiService.PredictListingDetailsAsync(payload.Title, payload.Description ?? "");
+
+            double? lat = payload.Latitude;
+            double? lng = payload.Longitude;
+            if (!lat.HasValue || !lng.HasValue)
+            {
+                var bName = business.Name.ToLowerInvariant();
+                if (bName.Contains("fırın")) { lat = 41.4504; lng = 31.7972; }
+                else if (bName.Contains("lokanta")) { lat = 41.4513; lng = 31.7981; }
+                else if (bName.Contains("coffee") || bName.Contains("kahve")) { lat = 41.4520; lng = 31.7995; }
+                else if (bName.Contains("market")) { lat = 41.4495; lng = 31.7950; }
+                else if (bName.Contains("tatlı")) { lat = 41.4530; lng = 31.8010; }
+                else
+                {
+                    var rand = new Random();
+                    lat = 41.4500 + (rand.NextDouble() - 0.5) * 0.008;
+                    lng = 31.7970 + (rand.NextDouble() - 0.5) * 0.008;
+                }
+            }
 
             var listing = new FoodListing
             {
                 Title = payload.Title,
                 Description = payload.Description,
-                Category = predictedCategory,
+                Category = string.IsNullOrWhiteSpace(payload.Category) ? predictedCategory : payload.Category,
                 Quantity = payload.Quantity,
                 PickupTime = payload.PickupTime.ToUniversalTime(),
                 ImageUrl = payload.ImageUrl,
-                AiShelfLife = predictedShelfLife,
+                AiShelfLife = string.IsNullOrWhiteSpace(payload.AiShelfLife) ? predictedShelfLife : payload.AiShelfLife,
+                Allergens = string.IsNullOrWhiteSpace(payload.Allergens) ? predictedAllergens : payload.Allergens,
+                CarbonSaved = payload.CarbonSaved ?? predictedCarbonSaved,
+                Latitude = lat,
+                Longitude = lng,
                 IsActive = payload.Quantity > 0,
                 BusinessId = businessId,
                 CreatedAt = DateTime.UtcNow
@@ -210,11 +237,29 @@ namespace ArtiGida.API.Controllers
             if (payload.PickupTime.HasValue) listing.PickupTime = payload.PickupTime.Value.ToUniversalTime();
             if (payload.ImageUrl != null) listing.ImageUrl = payload.ImageUrl;
             if (payload.AiShelfLife != null) listing.AiShelfLife = payload.AiShelfLife;
+            if (payload.Allergens != null) listing.Allergens = payload.Allergens;
+            if (payload.CarbonSaved.HasValue) listing.CarbonSaved = payload.CarbonSaved.Value;
+            if (payload.Latitude.HasValue) listing.Latitude = payload.Latitude.Value;
+            if (payload.Longitude.HasValue) listing.Longitude = payload.Longitude.Value;
             if (payload.IsActive.HasValue) listing.IsActive = payload.IsActive.Value;
 
             await _context.SaveChangesAsync();
 
             return Ok(MapToReadDto(listing));
+        }
+
+        [HttpPost("predict")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Predict([FromBody] ListingPredictPayload payload)
+        {
+            var (predictedCategory, predictedShelfLife, predictedAllergens, predictedCarbonSaved) = 
+                await _aiService.PredictListingDetailsAsync(payload.Title, payload.Description ?? "");
+            return Ok(new { 
+                category = predictedCategory, 
+                shelfLife = predictedShelfLife,
+                allergens = predictedAllergens,
+                carbonSaved = predictedCarbonSaved
+            });
         }
     }
 }

@@ -13,6 +13,10 @@ namespace ArtiGida.API.Models
         public DateTime PickupTime { get; set; }
         public string? ImageUrl { get; set; }
         public string? AiShelfLife { get; set; }
+        public string? Allergens { get; set; }
+        public double CarbonSaved { get; set; } = 0.0;
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public bool IsActive { get; set; } = true;
         public int BusinessId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

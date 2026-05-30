@@ -30,16 +30,25 @@ export class ListingDetailPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.listingService.getListingById(id).subscribe({
-      next: (data) => {
-        this.listing = data;
+    this.route.paramMap.subscribe(params => {
+      const id = Number(params.get('id'));
+      if (isNaN(id)) {
+        this.errorMessage = 'Geçersiz ilan numarası.';
         this.isLoading = false;
-      },
-      error: () => {
-        this.errorMessage = 'İlan bulunamadı.';
-        this.isLoading = false;
-      },
+        return;
+      }
+      this.isLoading = true;
+      this.errorMessage = '';
+      this.listingService.getListingById(id).subscribe({
+        next: (data) => {
+          this.listing = data;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          this.errorMessage = getApiErrorMessage(err, 'İlan yüklenirken bir hata oluştu veya aradığınız ilan bulunamadı.');
+          this.isLoading = false;
+        },
+      });
     });
   }
 

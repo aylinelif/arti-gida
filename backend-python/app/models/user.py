@@ -30,6 +30,7 @@ class User(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )
+    profile_picture_url: Optional[str] = Field(default=None, max_length=1000)
 
     listings: list["Listing"] = Relationship(back_populates="business")
     reservations: list["Reservation"] = Relationship(back_populates="customer")

@@ -9,23 +9,28 @@
     <form class="space-y-6">
       
       <div class="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:bg-gray-50 transition relative overflow-hidden">
-        <div class="text-4xl mb-3" [class.animate-bounce]="isAnalyzing">📸</div>
+        <div class="text-4xl mb-3" [class.animate-bounce]="isAnalyzing">✨</div>
         
         <p class="text-brandDark font-bold mb-1">
-          {{ isAnalyzing ? 'Yapay Zeka Fotoğrafı Analiz Ediyor...' : 'Ürün Fotoğrafı Yükle' }}
+          {{ isAnalyzing ? 'Yapay Zeka Analiz Ediyor...' : 'Akıllı İlan Asistanı' }}
         </p>
-        <p class="text-sm text-gray-400 mb-4" *ngIf="!isAnalyzing">PNG, JPG (Maks. 5MB)</p>
+        <p class="text-sm text-gray-400 mb-4" *ngIf="!isAnalyzing">İlan başlığını ve açıklamasını girdikten sonra AI analizini tetikleyin.</p>
         
-        <button type="button" (click)="simulateAI()" [disabled]="isAnalyzing"
-          class="bg-brandLight text-brandGreen border border-brandGreen px-4 py-2 rounded-full text-sm font-bold hover:bg-brandGreen hover:text-white transition flex items-center gap-2 mx-auto disabled:opacity-50">
-          <span [class.animate-spin]="isAnalyzing">✨</span> Yapay Zeka ile Otomatik Doldur
+        <button type="button" (click)="runAIPrediction($event)" [disabled]="isAnalyzing || !title"
+          class="bg-brandLight text-brandGreen border border-brandGreen px-5 py-2.5 rounded-full text-sm font-bold hover:bg-brandGreen hover:text-white transition flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed">
+          <span [class.animate-spin]="isAnalyzing">✨</span> Yapay Zeka ile Kategori ve Raf Ömrü Tahmin Et
         </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="space-y-2">
+        <div class="space-y-2 md:col-span-2">
           <label class="text-sm font-bold text-gray-700">İlan Başlığı</label>
-          <input type="text" [(ngModel)]="title" name="title" placeholder="Örn: Karışık Simit Paketi" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
+          <input type="text" [(ngModel)]="title" name="title" placeholder="Örn: Karışık Sıcak Simit ve Poğaça Paketi" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
+        </div>
+
+        <div class="space-y-2 md:col-span-2">
+          <label class="text-sm font-bold text-gray-700">Açıklama (İsteğe Bağlı)</label>
+          <textarea [(ngModel)]="description" name="description" placeholder="Örn: Gün sonu fırında taze kalan simit ve poğaçalar." rows="3" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition resize-none"></textarea>
         </div>
         
         <div class="space-y-2">
@@ -33,9 +38,18 @@
           <select [(ngModel)]="category" name="category" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
             <option value="">Kategori Seçin</option>
             <option value="Unlu Mamül">Unlu Mamül</option>
-            <option value="Ev Yemeği">Ev Yemeği</option>
-            <option value="Tatlı & Pasta">Tatlı & Pasta</option>
+            <option value="Yemek">Yemek</option>
+            <option value="Tatlı">Tatlı</option>
+            <option value="Meyve/Sebze">Meyve / Sebze</option>
+            <option value="Süt Ürünü">Süt Ürünü</option>
+            <option value="İçecek">İçecek</option>
+            <option value="Diğer">Diğer</option>
           </select>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-bold text-gray-700">Tahmini Raf Ömrü (AI Tahmini)</label>
+          <input type="text" [(ngModel)]="aiShelfLife" name="aiShelfLife" placeholder="Örn: 12 Saat" class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
         </div>
 
         <div class="space-y-2">
@@ -50,7 +64,7 @@
       </div>
 
       <div class="pt-4 mt-6 border-t border-gray-100">
-        <button type="button" (click)="submitForm()" [disabled]="isSubmitting" class="w-full bg-brandDark text-white py-4 rounded-xl font-extrabold hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
+        <button type="button" (click)="submitForm($event)" [disabled]="isSubmitting" class="w-full bg-brandDark text-white py-4 rounded-xl font-extrabold hover:bg-gray-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
           {{ isSubmitting ? 'Yayınlanıyor...' : 'İlanı Yayınla' }}
         </button>
       </div>

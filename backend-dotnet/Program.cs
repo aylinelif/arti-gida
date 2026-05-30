@@ -15,8 +15,48 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+bool usePostgres = false;
+
+if (!string.IsNullOrEmpty(connectionString) && connectionString.Contains("Host="))
+{
+    try
+    {
+        var connBuilder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+        using (var tcpClient = new System.Net.Sockets.TcpClient())
+        {
+            var result = tcpClient.BeginConnect(connBuilder.Host ?? "127.0.0.1", connBuilder.Port == 0 ? 5432 : connBuilder.Port, null, null);
+            var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
+            if (success)
+            {
+                tcpClient.EndConnect(result);
+                using (var conn = new Npgsql.NpgsqlConnection(connectionString))
+                {
+                    conn.Open();
+                    usePostgres = true;
+                }
+            }
+        }
+    }
+    catch
+    {
+        usePostgres = false;
+    }
+}
+
+if (usePostgres)
+{
+    Console.WriteLine("--> Database: Connecting to PostgreSQL...");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    Console.WriteLine("--> Database: PostgreSQL is not accessible or login failed. Falling back to local SQLite...");
+    var sqlitePath = System.IO.Path.Combine(builder.Environment.ContentRootPath, "artigida.db");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite($"Data Source={sqlitePath}"));
+}
 
 builder.Services.AddCors(options =>
 {
@@ -107,7 +147,16 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-        context.Database.Migrate();
+        if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            Console.WriteLine("--> Database: Creating SQLite database and schema...");
+            context.Database.EnsureCreated();
+        }
+        else
+        {
+            Console.WriteLine("--> Database: Running PostgreSQL migrations...");
+            context.Database.Migrate();
+        }
         ArtiGida.API.Data.DbInitializer.Seed(context);
     }
     catch (Exception ex)

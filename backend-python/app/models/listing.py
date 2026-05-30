@@ -24,6 +24,14 @@ class Listing(SQLModel, table=True):
         max_length=50,
         sa_column=Column(String(50), nullable=True),
     )
+    allergens: Optional[str] = Field(
+        default=None,
+        max_length=255,
+        sa_column=Column(String(255), nullable=True),
+    )
+    carbon_saved: float = Field(default=0.0)
+    latitude: Optional[float] = Field(default=None)
+    longitude: Optional[float] = Field(default=None)
     is_active: bool = Field(default=True, sa_column=Column(Boolean, nullable=False))
     business_id: int = Field(foreign_key="users.id", index=True)
     created_at: datetime = Field(

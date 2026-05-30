@@ -19,6 +19,7 @@ namespace ArtiGida.API.Models
         public string PasswordHash { get; set; } = string.Empty;
         public UserRole Role { get; set; } = UserRole.user;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string? ProfilePictureUrl { get; set; }
 
         // Navigation properties
         public ICollection<FoodListing> Listings { get; set; } = new List<FoodListing>();

@@ -1,15 +1,25 @@
 <div [routerLink]="['/listings', listing.id]" class="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer group block">
 
   <div class="relative">
-    <img [src]="listing.imageUrl || 'https://placehold.co/400x300?text=ArtiGida'" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105" alt="Yemek Resmi">
+    <img [src]="listing.imageUrl || 'https://placehold.co/400x300?text=ArtiGida'" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105" alt="Yemek Resmi" loading="lazy" decoding="async">
     <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
       <span class="text-xs font-bold text-brandDark">⏳ {{listing.aiShelfLife}}</span>
     </div>
+    @if (listing.carbonSaved) {
+      <div class="absolute top-3 left-3 bg-brandGreen/95 text-white backdrop-blur-sm px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1">
+        <span class="text-[10px] font-black uppercase">🌱 {{listing.carbonSaved}} kg CO₂</span>
+      </div>
+    }
   </div>
 
   <div class="p-5">
-    <div class="mb-3">
+    <div class="mb-3 flex flex-wrap gap-2 items-center">
       <span class="text-xs font-bold text-brandGreen bg-brandLight px-3 py-1 rounded-full border border-green-100">{{listing.aiCategory}}</span>
+      @if (listing.allergens && listing.allergens !== 'Yok') {
+        <span class="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-1 rounded-full border border-amber-100 flex items-center gap-0.5">
+          ⚠️ Alerjen: {{listing.allergens}}
+        </span>
+      }
     </div>
 
     <h3 class="text-xl font-bold text-gray-800 mb-1">{{listing.title}}</h3>
