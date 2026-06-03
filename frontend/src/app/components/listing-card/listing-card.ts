@@ -22,7 +22,7 @@ export class ListingCardComponent {
   reserveMessage = '';
 
   constructor(
-    private auth: AuthService,
+    public auth: AuthService,
     private reservationService: ReservationService,
     private router: Router,
     private toast: ToastService,
@@ -64,6 +64,19 @@ export class ListingCardComponent {
       error: (err) => {
         this.isReserving = false;
         this.toast.error(getApiErrorMessage(err, 'Rezervasyon yapılamadı.'));
+      },
+    });
+  }
+
+  messageSeller(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.router.navigate(['/messages'], {
+      queryParams: {
+        otherUserId: this.listing.businessId,
+        listingId: this.listing.id,
+        listingTitle: this.listing.title,
       },
     });
   }
