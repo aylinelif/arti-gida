@@ -48,7 +48,7 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
 
     if (!this.auth.isLoggedIn) {
       this.toast.warning('Mesajlarınızı görmek için lütfen giriş yapın.');
-      this.router.navigate(['/login'], { queryParams: { returnUrl: '/messages' } });
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       return;
     }
 
@@ -58,14 +58,35 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
       this.contextListingId = params['listingId'] ? Number(params['listingId']) : undefined;
       this.contextListingTitle = params['listingTitle'] || undefined;
 
+      if (!otherId) {
+        this.loadConversations();
+        return;
+      }
+
+      // If we already have this active conversation selected, just refresh the list
+      if (this.activeConversation?.otherUser.id === otherId) {
+        this.loadConversations();
+        return;
+      }
+
+      // Check if this conversation already exists in our loaded list locally first
+      const existingLocal = this.conversations.find(c => c.otherUser.id === otherId);
+      if (existingLocal) {
+        this.selectConversation(existingLocal);
+      } else {
+        // Initiate a temporary empty conversation with the other user immediately (optimistic UI selection)
+        this.initiateNewChat(otherId);
+      }
+
+      // Fetch latest conversations from backend and sync
       this.loadConversations(() => {
-        if (otherId) {
-          // Check if this conversation already exists in our loaded list
-          const existing = this.conversations.find(c => c.otherUser.id === otherId);
-          if (existing) {
-            this.selectConversation(existing);
-          } else {
-            // Initiate a temporary empty conversation with the other user
+        const existing = this.conversations.find(c => c.otherUser.id === otherId);
+        if (existing) {
+          this.selectConversation(existing);
+        } else {
+          // Make sure our active conversation is still set to the temporary one
+          const activeIsTemp = this.activeConversation && this.activeConversation.otherUser.id === otherId;
+          if (!activeIsTemp) {
             this.initiateNewChat(otherId);
           }
         }
@@ -130,7 +151,8 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
       unreadCount: 0
     };
 
-    // Insert temp conversation at the top
+    // Insert temp conversation at the top, avoiding duplicates
+    this.conversations = this.conversations.filter(c => c.otherUser.id !== otherUserId);
     this.conversations = [tempConv, ...this.conversations];
     this.selectConversation(tempConv);
   }
