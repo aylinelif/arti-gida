@@ -22,15 +22,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(clonedReq).pipe(
     catchError((error: any) => {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        // Clear stale session
-        try {
-          if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-            localStorage.removeItem('artigida_token');
-            localStorage.removeItem('artigida_user');
-          }
-        } catch {}
-        // Redirect to login page
-        router.navigate(['/login']);
+        if (typeof window !== 'undefined') {
+          // Clear stale session
+          try {
+            if (typeof localStorage !== 'undefined') {
+              localStorage.removeItem('artigida_token');
+              localStorage.removeItem('artigida_user');
+            }
+          } catch {}
+          // Redirect to login page
+          router.navigate(['/login']);
+        }
       }
       return throwError(() => error);
     })

@@ -47,6 +47,8 @@ export class ProfilePage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (typeof window === 'undefined') return;
+
     if (!this.auth.isLoggedIn) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/profile' } });
       return;

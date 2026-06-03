@@ -47,6 +47,8 @@ export class AddListing implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (typeof window === 'undefined') return;
+
     if (!this.auth.isLoggedIn || !this.auth.isBusiness) {
       this.toast.warning('İlan eklemek için işletme hesabıyla giriş yapmalısınız.');
       this.router.navigate(['/login']);

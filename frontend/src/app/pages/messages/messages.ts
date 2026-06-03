@@ -44,6 +44,8 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
   ) {}
 
   ngOnInit(): void {
+    if (typeof window === 'undefined') return;
+
     if (!this.auth.isLoggedIn) {
       this.toast.warning('Mesajlarınızı görmek için lütfen giriş yapın.');
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/messages' } });
