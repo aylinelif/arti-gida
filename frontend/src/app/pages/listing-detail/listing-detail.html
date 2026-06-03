@@ -85,11 +85,22 @@
         @if (errorMessage) {
           <p class="mt-6 p-4 bg-red-50 text-red-600 rounded-xl font-medium">{{ errorMessage }}</p>
         }
-        @if (!successMessage && listing.quantity > 0) {
-          <button (click)="reserve()" [disabled]="isReserving"
-            class="w-full mt-6 bg-brandGreen text-white py-4 rounded-xl font-extrabold hover:bg-green-700 transition disabled:opacity-50">
-            {{ isReserving ? 'Rezerve ediliyor...' : 'Rezerve Et' }}
-          </button>
+        @if (!successMessage) {
+          <div class="flex flex-col sm:flex-row gap-3 mt-6">
+            @if (listing.quantity > 0 && auth.isCustomer) {
+              <button (click)="reserve()" [disabled]="isReserving"
+                class="flex-1 bg-brandGreen text-white py-4 rounded-xl font-extrabold hover:bg-green-700 transition disabled:opacity-50">
+                {{ isReserving ? 'Rezerve ediliyor...' : 'Rezerve Et' }}
+              </button>
+            }
+            @if (auth.isLoggedIn && auth.currentUser()?.id !== listing.businessId) {
+              <button (click)="messageSeller()" 
+                class="bg-white text-brandDark border border-gray-200 py-4 px-6 rounded-xl font-bold hover:bg-gray-50 hover:border-brandGreen transition flex items-center justify-center gap-2"
+                [class.w-full]="listing.quantity <= 0 || !auth.isCustomer">
+                💬 <span>İşletmeye Soru Sor</span>
+              </button>
+            }
+          </div>
         }
       </div>
     </div>

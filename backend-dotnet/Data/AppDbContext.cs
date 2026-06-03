@@ -12,6 +12,7 @@ namespace ArtiGida.API.Data
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<FoodListing> Listings { get; set; } = null!;
         public DbSet<Reservation> Reservations { get; set; } = null!;
+        public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -105,6 +106,38 @@ namespace ArtiGida.API.Data
                     .WithMany(p => p.Reservations)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ChatMessage mapping
+            modelBuilder.Entity<ChatMessage>(entity =>
+            {
+                entity.ToTable("chat_messages");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.SenderId).HasColumnName("sender_id").IsRequired();
+                entity.Property(e => e.ReceiverId).HasColumnName("receiver_id").IsRequired();
+                entity.Property(e => e.Content).HasColumnName("content").IsRequired();
+                entity.Property(e => e.Timestamp)
+                    .HasColumnName("timestamp")
+                    .HasColumnType("timestamp with time zone")
+                    .IsRequired();
+                entity.Property(e => e.ListingId).HasColumnName("listing_id");
+                entity.Property(e => e.IsRead).HasColumnName("is_read").IsRequired();
+
+                entity.HasOne(d => d.Sender)
+                    .WithMany()
+                    .HasForeignKey(d => d.SenderId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Receiver)
+                    .WithMany()
+                    .HasForeignKey(d => d.ReceiverId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Listing)
+                    .WithMany()
+                    .HasForeignKey(d => d.ListingId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }

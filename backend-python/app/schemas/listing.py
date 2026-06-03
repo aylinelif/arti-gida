@@ -37,6 +37,7 @@ class ListingUpdate(SQLModel):
 
 class ListingRead(SQLModel):
     id: int
+    businessId: int
     establishmentName: str
     title: str
     description: str = ""

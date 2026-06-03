@@ -56,6 +56,7 @@ namespace ArtiGida.API.Dtos
     public class ListingRead
     {
         public int Id { get; set; }
+        public int BusinessId { get; set; }
         public string EstablishmentName { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

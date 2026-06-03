@@ -1,5 +1,6 @@
 export interface FoodListing {
   id: number;
+  businessId: number;
   establishmentName: string;
   title: string;
   description?: string;

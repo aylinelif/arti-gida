@@ -15,6 +15,7 @@ def _format_pickup_time(pickup_time: datetime) -> str:
 def _to_listing_read(listing: Listing, business_name: str) -> ListingRead:
     return ListingRead(
         id=listing.id,
+        businessId=listing.business_id,
         establishmentName=business_name,
         title=listing.title,
         description=listing.description or "",

@@ -92,6 +92,25 @@ export class ListingDetailPage implements OnInit {
     });
   }
 
+  messageSeller(): void {
+    if (!this.listing) return;
+
+    if (!this.auth.isLoggedIn) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: `/listings/${this.listing.id}` },
+      });
+      return;
+    }
+
+    this.router.navigate(['/messages'], {
+      queryParams: {
+        otherUserId: this.listing.businessId,
+        listingId: this.listing.id,
+        listingTitle: this.listing.title,
+      },
+    });
+  }
+
   goToProfile(): void {
     this.router.navigate(['/profile']);
   }

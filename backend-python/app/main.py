@@ -7,6 +7,7 @@ from app.config import settings
 from app.routers.auth import router as auth_router
 from app.routers.listings import router as listings_router
 from app.routers.reservations import router as reservations_router
+from app.routers.messages import router as messages_router
 
 
 @asynccontextmanager
@@ -33,6 +34,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(listings_router)
 app.include_router(reservations_router)
+app.include_router(messages_router)
 
 
 @app.get("/health", tags=["health"])

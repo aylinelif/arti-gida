@@ -55,6 +55,7 @@ namespace ArtiGida.API.Controllers
             return new ListingRead
             {
                 Id = listing.Id,
+                BusinessId = listing.BusinessId,
                 EstablishmentName = listing.Business?.Name ?? "Bilinmeyen İşletme",
                 Title = listing.Title,
                 Description = listing.Description ?? "",

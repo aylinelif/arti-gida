@@ -1,0 +1,201 @@
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden flex h-[calc(100vh-140px)] min-h-[500px]">
+    
+    <!-- Left Sidebar: Conversations List -->
+    <div [class.hidden]="activeConversation && !isLoadingConversations" class="w-full md:w-80 lg:w-96 border-r border-gray-100 flex flex-col bg-gray-50 md:flex flex">
+      <div class="p-5 border-b border-gray-100 bg-white">
+        <h2 class="text-xl font-extrabold text-brandDark">Mesajlarım</h2>
+        <p class="text-xs text-gray-400 mt-1">İşletmeler ve müşterilerle olan sohbetleriniz</p>
+      </div>
+
+      <!-- Conversations Loop -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-2">
+        <div *ngIf="isLoadingConversations" class="space-y-3 p-4">
+          <div *ngFor="let i of [1, 2, 3]" class="flex items-center gap-3 animate-pulse">
+            <div class="w-12 h-12 bg-gray-200 rounded-full"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 bg-gray-200 rounded-full w-2/3"></div>
+              <div class="h-3 bg-gray-200 rounded-full w-1/2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoadingConversations && conversations.length === 0" class="text-center py-12 text-gray-400">
+          <span class="text-3xl block mb-2">💬</span>
+          <p class="text-sm font-semibold">Henüz mesajlaşma bulunmuyor.</p>
+        </div>
+
+        <div *ngFor="let conv of conversations" 
+             (click)="selectConversation(conv)"
+             [class.bg-emerald-50]="activeConversation?.otherUser?.id === conv.otherUser.id"
+             [class.border-emerald-200]="activeConversation?.otherUser?.id === conv.otherUser.id"
+             [class.bg-white]="activeConversation?.otherUser?.id !== conv.otherUser.id"
+             class="flex items-center gap-3 p-3.5 rounded-2xl border border-transparent shadow-sm hover:shadow-md hover:border-gray-200 cursor-pointer transition-all duration-200 relative">
+          
+          <!-- User Avatar -->
+          <div class="relative">
+            <img *ngIf="conv.otherUser.profilePictureUrl" [src]="conv.otherUser.profilePictureUrl" alt="Avatar" class="w-12 h-12 rounded-full border border-gray-100 object-cover">
+            <div *ngIf="!conv.otherUser.profilePictureUrl" class="w-12 h-12 bg-brandLight rounded-full flex items-center justify-center text-brandGreen border border-brandGreen font-bold text-sm">
+              {{ conv.otherUser.name.charAt(0) }}
+            </div>
+            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+          </div>
+
+          <!-- Conv details -->
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-baseline mb-0.5">
+              <h4 class="text-sm font-extrabold text-brandDark truncate pr-2">{{ conv.otherUser.name }}</h4>
+              <span class="text-[10px] text-gray-400 whitespace-nowrap">{{ conv.lastMessage.timestamp | date:'HH:mm' }}</span>
+            </div>
+            
+            <div class="flex items-center gap-1.5 mb-1">
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide"
+                    [class.bg-emerald-100]="conv.otherUser.role === 'business'"
+                    [class.text-emerald-800]="conv.otherUser.role === 'business'"
+                    [class.bg-blue-100]="conv.otherUser.role !== 'business'"
+                    [class.text-blue-800]="conv.otherUser.role !== 'business'">
+                {{ conv.otherUser.role === 'business' ? 'İşletme' : 'Müşteri' }}
+              </span>
+            </div>
+
+            <p class="text-xs text-gray-500 truncate" [class.font-bold]="conv.unreadCount > 0">
+              {{ conv.lastMessage.content }}
+            </p>
+          </div>
+
+          <!-- Unread Count Badge -->
+          <div *ngIf="conv.unreadCount > 0" class="absolute right-3 bottom-3 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center text-[10px] font-extrabold">
+            {{ conv.unreadCount }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Active Chat Window -->
+    <div [class.hidden]="!activeConversation && !isLoadingConversations" class="flex-1 flex flex-col bg-slate-50 md:flex">
+      
+      <!-- Placeholder when no conversation is active -->
+      <div *ngIf="!activeConversation" class="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white">
+        <div class="w-20 h-20 bg-brandLight rounded-full flex items-center justify-center text-brandGreen text-4xl mb-4 shadow-inner">💬</div>
+        <h3 class="text-xl font-extrabold text-brandDark mb-2">Sohbeti Başlatın</h3>
+        <p class="text-sm text-gray-400 max-w-sm">İlan detayından satıcı işletmeyle sohbet başlatabilir veya soldaki menüden konuşmalarınızı seçebilirsiniz.</p>
+      </div>
+
+      <!-- Active Conversation Content -->
+      <div *ngIf="activeConversation" class="flex-1 flex flex-col h-full bg-slate-50 relative overflow-hidden">
+        
+        <!-- Chat Header -->
+        <div class="p-4 border-b border-gray-100 bg-white flex justify-between items-center z-10 shadow-sm">
+          <div class="flex items-center gap-3">
+            <button (click)="activeConversation = null" class="md:hidden text-gray-500 hover:text-brandGreen mr-1">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+            <div class="relative">
+              <img *ngIf="activeConversation.otherUser.profilePictureUrl" [src]="activeConversation.otherUser.profilePictureUrl" alt="Avatar" class="w-10 h-10 rounded-full object-cover">
+              <div *ngIf="!activeConversation.otherUser.profilePictureUrl" class="w-10 h-10 bg-brandLight rounded-full flex items-center justify-center text-brandGreen border border-brandGreen font-bold text-sm">
+                {{ activeConversation.otherUser.name.charAt(0) }}
+              </div>
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border border-white rounded-full"></span>
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold text-brandDark">{{ activeConversation.otherUser.name }}</h3>
+              <p class="text-[10px] text-gray-400 flex items-center gap-1">
+                <span>🟢 Aktif</span> • 
+                <span class="font-bold uppercase">{{ activeConversation.otherUser.role === 'business' ? 'İşletme' : 'Müşteri' }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages scroll container -->
+        <div #scrollContainer class="flex-1 overflow-y-auto p-5 space-y-4">
+          <div *ngIf="isLoadingHistory" class="flex items-center justify-center h-full">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brandGreen"></div>
+          </div>
+
+          <div *ngIf="!isLoadingHistory && messages.length === 0" class="text-center py-10 text-gray-400 text-xs">
+            Burada henüz mesaj yok. İlk mesajı siz gönderin!
+          </div>
+
+          <!-- Message Bubbles -->
+          <div *ngFor="let msg of messages" class="flex flex-col"
+               [class.items-end]="msg.senderId === auth.currentUser()?.id"
+               [class.items-start]="msg.senderId !== auth.currentUser()?.id">
+            
+            <!-- Contextual Listing reference tag (if any) -->
+            <div *ngIf="msg.listingTitle" class="mb-1 text-[10px] bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-200 max-w-xs truncate shadow-sm flex items-center gap-1 animate-pulse">
+              <span>🏷️ İlan:</span> <strong class="font-extrabold">{{ msg.listingTitle }}</strong>
+            </div>
+
+            <!-- Message bubble container -->
+            <div class="flex gap-2 max-w-[80%]"
+                 [class.flex-row-reverse]="msg.senderId === auth.currentUser()?.id">
+              
+              <!-- Message Text -->
+              <div class="rounded-2xl px-4 py-2.5 shadow-sm text-sm break-words relative"
+                   [class.bg-brandGreen]="msg.senderId === auth.currentUser()?.id"
+                   [class.text-white]="msg.senderId === auth.currentUser()?.id"
+                   [class.rounded-tr-none]="msg.senderId === auth.currentUser()?.id"
+                   [class.bg-white]="msg.senderId !== auth.currentUser()?.id"
+                   [class.text-brandDark]="msg.senderId !== auth.currentUser()?.id"
+                   [class.rounded-tl-none]="msg.senderId !== auth.currentUser()?.id"
+                   [class.border]="msg.senderId !== auth.currentUser()?.id"
+                   [class.border-gray-100]="msg.senderId !== auth.currentUser()?.id">
+                <p class="leading-relaxed">{{ msg.content }}</p>
+                <span class="block text-[9px] mt-1 text-right"
+                      [class.text-green-200]="msg.senderId === auth.currentUser()?.id"
+                      [class.text-gray-400]="msg.senderId !== auth.currentUser()?.id">
+                  {{ msg.timestamp | date:'HH:mm' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div *ngIf="isTyping" class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-brandLight rounded-full flex items-center justify-center text-brandGreen font-bold text-xs">
+              {{ activeConversation.otherUser.name.charAt(0) }}
+            </div>
+            <div class="bg-white border border-gray-100 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1.5">
+              <span class="w-2 h-2 bg-brandGreen rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+              <span class="w-2 h-2 bg-brandGreen rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+              <span class="w-2 h-2 bg-brandGreen rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div class="p-4 bg-white border-t border-gray-100 flex flex-col gap-2">
+          
+          <!-- Contextual alert above typing input -->
+          <div *ngIf="contextListingTitle" class="flex justify-between items-center bg-brandLight/50 text-brandGreen border border-brandGreen/20 px-3 py-1.5 rounded-xl text-xs">
+            <span class="truncate">🏷️ <strong>{{ contextListingTitle }}</strong> ilanı hakkında yazışıyorsunuz.</span>
+            <button (click)="contextListingId = undefined; contextListingTitle = undefined" class="text-gray-400 hover:text-brandGreen ml-2">❌</button>
+          </div>
+
+          <form (ngSubmit)="sendMessage()" class="flex gap-2">
+            <input type="text" 
+                   [(ngModel)]="newMessageText" 
+                   name="messageText" 
+                   placeholder="Bir mesaj yazın..." 
+                   autocomplete="off"
+                   class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 outline-none focus:border-brandGreen transition">
+            
+            <button type="submit" 
+                    [disabled]="!newMessageText.trim()"
+                    class="bg-brandGreen text-white px-5 py-3 rounded-xl hover:bg-green-700 transition flex items-center gap-1.5 shadow-sm disabled:opacity-50">
+              <span class="hidden sm:inline font-bold text-sm">Gönder</span>
+              <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+              </svg>
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

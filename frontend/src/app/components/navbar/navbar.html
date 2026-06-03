@@ -8,6 +8,10 @@
 
     <div class="flex items-center gap-3 md:gap-5">
       @if (auth.isLoggedIn) {
+        <a routerLink="/messages" class="text-sm font-bold text-brandDark hover:text-brandGreen transition flex items-center gap-1.5 mr-1">
+          <span>💬</span>
+          <span class="hidden sm:inline">Mesajlarım</span>
+        </a>
         <a routerLink="/profile" class="text-sm font-bold text-brandDark hover:text-brandGreen transition flex items-center gap-1">
           @if (auth.currentUser()?.profilePictureUrl) {
             <img [src]="auth.currentUser()?.profilePictureUrl" alt="Avatar" class="w-8 h-8 rounded-full border border-brandGreen object-cover">
