@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: artigida-prod-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: artigida
+      POSTGRES_USER: artigida_app
+      POSTGRES_PASSWORD: artigida_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - artigida_prod_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U artigida_app -d artigida"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-dotnet:
+    build:
+      context: ./backend-dotnet
+      dockerfile: Dockerfile
+    container_name: artigida-prod-dotnet
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=artigida;Username=artigida_app;Password=artigida_secret
+      - ASPNETCORE_ENVIRONMENT=Production
+      - OpenRouter__ApiKey=${OPENROUTER_API_KEY:-}
+      - OpenRouter__Model=${OPENROUTER_MODEL:-google/gemini-2.5-flash}
+
+  backend-python:
+    build:
+      context: ./backend-python
+      dockerfile: Dockerfile
+    container_name: artigida-prod-python
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://artigida_app:artigida_secret@db:5432/artigida
+      - APP_ENV=production
+      - DEBUG=false
+      - CORS_ORIGINS=http://localhost:4200,http://127.0.0.1:4200,${FRONTEND_URL:-*}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-artigida-production-secure-key-replace}
+
+volumes:
+  artigida_prod_pgdata:
