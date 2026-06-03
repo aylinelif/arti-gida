@@ -96,8 +96,9 @@ export class ListingDetailPage implements OnInit {
     if (!this.listing) return;
 
     if (!this.auth.isLoggedIn) {
+      const returnUrl = `/messages?otherUserId=${this.listing.businessId}&listingId=${this.listing.id}&listingTitle=${encodeURIComponent(this.listing.title)}`;
       this.router.navigate(['/login'], {
-        queryParams: { returnUrl: `/listings/${this.listing.id}` },
+        queryParams: { returnUrl },
       });
       return;
     }

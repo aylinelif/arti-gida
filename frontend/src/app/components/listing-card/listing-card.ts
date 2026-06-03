@@ -72,6 +72,14 @@ export class ListingCardComponent {
     event.preventDefault();
     event.stopPropagation();
 
+    if (!this.auth.isLoggedIn) {
+      const returnUrl = `/messages?otherUserId=${this.listing.businessId}&listingId=${this.listing.id}&listingTitle=${encodeURIComponent(this.listing.title)}`;
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl },
+      });
+      return;
+    }
+
     this.router.navigate(['/messages'], {
       queryParams: {
         otherUserId: this.listing.businessId,

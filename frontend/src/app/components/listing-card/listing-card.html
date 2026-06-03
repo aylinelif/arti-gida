@@ -53,7 +53,7 @@
         </span>
       }
       
-      @if (auth.isLoggedIn && auth.currentUser()?.id !== listing.businessId) {
+      @if (auth.currentUser()?.id !== listing.businessId) {
         <button
           type="button"
           (click)="messageSeller($event)"

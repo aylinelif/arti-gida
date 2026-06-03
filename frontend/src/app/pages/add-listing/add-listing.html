@@ -35,29 +35,91 @@
 
         <div class="space-y-2 md:col-span-2">
           <label class="text-sm font-bold text-gray-700">İlan Görseli</label>
-          <p class="text-xs text-gray-400 mb-2">Hazır görsellerden birini seçebilir veya özel bir görsel URL'si girebilirsiniz.</p>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-            <button type="button" *ngFor="let preset of imagePresets" 
-                    (click)="selectPresetImage(preset.url)"
-                    [class.border-brandGreen]="imageUrl === preset.url"
-                    [class.ring-2]="imageUrl === preset.url"
-                    [class.ring-brandGreen]="imageUrl === preset.url"
-                    class="relative rounded-2xl overflow-hidden h-16 border-2 border-transparent hover:scale-105 transition-all shadow-sm">
-              <img [src]="preset.url" class="w-full h-full object-cover">
-              <span class="absolute inset-0 bg-black/40 flex items-center justify-center text-[10px] text-white font-extrabold text-center px-1">{{ preset.label }}</span>
+          
+          <!-- Image Selector Tabs -->
+          <div class="flex border-b border-gray-100 mb-4 gap-2">
+            <button type="button" (click)="activeImageTab = 'upload'"
+                    [class.border-brandGreen]="activeImageTab === 'upload'"
+                    [class.text-brandGreen]="activeImageTab === 'upload'"
+                    [class.border-transparent]="activeImageTab !== 'upload'"
+                    [class.text-gray-400]="activeImageTab !== 'upload'"
+                    class="py-2.5 px-4 font-bold text-sm border-b-2 transition flex items-center gap-1.5 focus:outline-none">
+              📁 Galeriden Yükle
+            </button>
+            <button type="button" (click)="activeImageTab = 'preset'"
+                    [class.border-brandGreen]="activeImageTab === 'preset'"
+                    [class.text-brandGreen]="activeImageTab === 'preset'"
+                    [class.border-transparent]="activeImageTab !== 'preset'"
+                    [class.text-gray-400]="activeImageTab !== 'preset'"
+                    class="py-2.5 px-4 font-bold text-sm border-b-2 transition flex items-center gap-1.5 focus:outline-none">
+              ✨ Hazır Görseller
+            </button>
+            <button type="button" (click)="activeImageTab = 'url'"
+                    [class.border-brandGreen]="activeImageTab === 'url'"
+                    [class.text-brandGreen]="activeImageTab === 'url'"
+                    [class.border-transparent]="activeImageTab !== 'url'"
+                    [class.text-gray-400]="activeImageTab !== 'url'"
+                    class="py-2.5 px-4 font-bold text-sm border-b-2 transition flex items-center gap-1.5 focus:outline-none">
+              🔗 Görsel URL'si
             </button>
           </div>
-          
-          <div class="flex gap-2">
-            <input type="text" [(ngModel)]="imageUrl" name="imageUrl" placeholder="Özel bir görsel URL'si yapıştırın..." 
-                   class="flex-1 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
-            <button type="button" *ngIf="imageUrl" (click)="imageUrl = ''" class="px-4 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-xl font-bold transition text-xs">Temizle</button>
+
+          <!-- Tab Content 1: Upload from Device -->
+          <div *ngIf="activeImageTab === 'upload'" class="space-y-3">
+            <div 
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onFileDropped($event)"
+              [class.bg-emerald-50]="isDragging"
+              [class.border-brandGreen]="isDragging"
+              class="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center hover:bg-gray-50 transition cursor-pointer relative flex flex-col items-center justify-center min-h-[140px]"
+              (click)="fileInput.click()">
+              
+              <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" class="hidden">
+              
+              <div class="text-3xl mb-2 text-gray-400">📸</div>
+              <p class="text-sm font-bold text-brandDark">Resim seçmek veya sürüklemek için tıklayın</p>
+              <p class="text-xs text-gray-400 mt-1">PNG, JPG veya WEBP (Maksimum 800px boyutuna otomatik optimize edilir)</p>
+              
+              <div *ngIf="isUploadingFile" class="absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center rounded-2xl">
+                <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brandGreen mb-2"></div>
+                <span class="text-xs font-bold text-brandGreen">Görsel işleniyor...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Content 2: Presets -->
+          <div *ngIf="activeImageTab === 'preset'" class="space-y-3">
+            <p class="text-xs text-gray-400">İlan kategorinize uygun yüksek kaliteli bir hazır görsel seçin:</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <button type="button" *ngFor="let preset of imagePresets" 
+                      (click)="selectPresetImage(preset.url)"
+                      [class.border-brandGreen]="imageUrl === preset.url"
+                      [class.ring-2]="imageUrl === preset.url"
+                      [class.ring-brandGreen]="imageUrl === preset.url"
+                      class="relative rounded-2xl overflow-hidden h-16 border-2 border-transparent hover:scale-105 transition-all shadow-sm">
+                <img [src]="preset.url" class="w-full h-full object-cover">
+                <span class="absolute inset-0 bg-black/40 flex items-center justify-center text-[10px] text-white font-extrabold text-center px-1">{{ preset.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab Content 3: URL input -->
+          <div *ngIf="activeImageTab === 'url'" class="space-y-3">
+            <p class="text-xs text-gray-400">Web üzerinden istediğiniz bir görsel bağlantısını yapıştırın:</p>
+            <div class="flex gap-2">
+              <input type="text" [(ngModel)]="imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg" 
+                     class="flex-1 bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brandGreen focus:border-brandGreen block p-3 outline-none transition">
+            </div>
           </div>
           
-          <!-- Image Live Preview -->
+          <!-- Shared Image Live Preview -->
           <div *ngIf="imageUrl" class="mt-4 rounded-2xl overflow-hidden border border-gray-100 shadow-inner h-48 relative animate-slide-in">
             <img [src]="imageUrl" class="w-full h-full object-cover" (error)="onImageError()">
-            <span class="absolute bottom-3 left-3 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">Görsel Önizlemesi</span>
+            <div class="absolute bottom-3 left-3 flex gap-2">
+              <span class="bg-black/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">Görsel Önizlemesi</span>
+              <button type="button" (click)="imageUrl = ''" class="bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition">Görseli Kaldır 🗑️</button>
+            </div>
           </div>
         </div>
         

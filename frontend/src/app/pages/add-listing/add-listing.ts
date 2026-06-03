@@ -25,6 +25,10 @@ export class AddListing implements OnInit {
   isAnalyzing = false;
   isSubmitting = false;
 
+  activeImageTab: 'upload' | 'preset' | 'url' = 'upload';
+  isUploadingFile = false;
+  isDragging = false;
+
   imagePresets = [
     { label: 'Unlu Mamül', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600' },
     { label: 'Yemek', url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600' },
@@ -54,8 +58,102 @@ export class AddListing implements OnInit {
   }
 
   onImageError(): void {
-    this.toast.error('Geçersiz görsel URL\'si. Lütfen çalışan bir bağlantı girin.');
-    this.imageUrl = '';
+    if (this.imageUrl && !this.imageUrl.startsWith('data:')) {
+      this.toast.error('Geçersiz görsel URL\'si. Lütfen çalışan bir bağlantı girin.');
+      this.imageUrl = '';
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    this.processFile(input.files[0]);
+  }
+
+  onFileDropped(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+    if (event.dataTransfer && event.dataTransfer.files.length > 0) {
+      this.processFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  processFile(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Lütfen sadece resim dosyası yükleyin.');
+      return;
+    }
+
+    this.isUploadingFile = true;
+    this.compressAndLoadImage(file).then(
+      (base64Data) => {
+        this.imageUrl = base64Data;
+        this.isUploadingFile = false;
+        this.toast.success('Görsel yüklendi ve optimize edildi!');
+      },
+      (err) => {
+        console.error(err);
+        this.toast.error('Görsel işlenirken bir hata oluştu.');
+        this.isUploadingFile = false;
+      }
+    );
+  }
+
+  compressAndLoadImage(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const max_size = 800; // max size in px for either dimension
+          
+          if (width > height) {
+            if (width > max_size) {
+              height *= max_size / width;
+              width = max_size;
+            }
+          } else {
+            if (height > max_size) {
+              width *= max_size / height;
+              height = max_size;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Canvas context could not be created'));
+            return;
+          }
+          
+          ctx.drawImage(img, 0, 0, width, height);
+          // compress as jpeg with quality 0.75
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          resolve(dataUrl);
+        };
+        img.onerror = (err) => reject(err);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
   }
 
   runAIPrediction(event?: Event): void {

@@ -50,13 +50,13 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
       return;
     }
 
-    this.loadConversations(() => {
-      // Read query params for new chat initiation
-      this.route.queryParams.subscribe(params => {
-        const otherId = params['otherUserId'] ? Number(params['otherUserId']) : null;
-        this.contextListingId = params['listingId'] ? Number(params['listingId']) : undefined;
-        this.contextListingTitle = params['listingTitle'] || undefined;
+    // Read query params for new chat initiation immediately
+    this.route.queryParams.subscribe(params => {
+      const otherId = params['otherUserId'] ? Number(params['otherUserId']) : null;
+      this.contextListingId = params['listingId'] ? Number(params['listingId']) : undefined;
+      this.contextListingTitle = params['listingTitle'] || undefined;
 
+      this.loadConversations(() => {
         if (otherId) {
           // Check if this conversation already exists in our loaded list
           const existing = this.conversations.find(c => c.otherUser.id === otherId);
@@ -188,7 +188,13 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
         }
         
         // Refresh conversations list to update order and last messages
-        this.loadConversations();
+        this.loadConversations(() => {
+          // Sync activeConversation to point to the newly loaded real conversation from the backend
+          const realConv = this.conversations.find(c => c.otherUser.id === receiverId);
+          if (realConv) {
+            this.activeConversation = realConv;
+          }
+        });
 
         // Simulate typing and reply if interacting in mock mode (simulation)
         this.triggerSimulationReply(content);
@@ -205,8 +211,10 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
     // Refresh conversations list in background
     this.messageService.getConversations().subscribe({
       next: (data) => {
+        const tempConv = this.conversations.find(c => c.lastMessage.id === 0);
+        
         // Update unread badges and items without breaking active selection
-        this.conversations = data.map(newC => {
+        const updatedConversations = data.map(newC => {
           const old = this.conversations.find(o => o.otherUser.id === newC.otherUser.id);
           if (old && this.activeConversation?.otherUser.id === newC.otherUser.id) {
             // Keep active conversation unread count at 0
@@ -214,6 +222,21 @@ export class MessagesPage implements OnInit, OnDestroy, AfterViewChecked {
           }
           return newC;
         });
+
+        // Keep the temporary empty conversation in the list if it's currently active and not yet saved
+        if (tempConv && !updatedConversations.some(c => c.otherUser.id === tempConv.otherUser.id)) {
+          this.conversations = [tempConv, ...updatedConversations];
+        } else {
+          this.conversations = updatedConversations;
+        }
+
+        // Sync activeConversation reference to point to the real conversation once it's saved
+        if (this.activeConversation && this.activeConversation.lastMessage.id === 0) {
+          const matchingReal = updatedConversations.find(c => c.otherUser.id === this.activeConversation!.otherUser.id);
+          if (matchingReal) {
+            this.activeConversation = matchingReal;
+          }
+        }
       }
     });
 

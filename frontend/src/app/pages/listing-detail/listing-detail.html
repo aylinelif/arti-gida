@@ -93,7 +93,7 @@
                 {{ isReserving ? 'Rezerve ediliyor...' : 'Rezerve Et' }}
               </button>
             }
-            @if (auth.isLoggedIn && auth.currentUser()?.id !== listing.businessId) {
+            @if (auth.currentUser()?.id !== listing.businessId) {
               <button (click)="messageSeller()" 
                 class="w-full bg-white text-brandDark border border-gray-200 py-4 px-6 rounded-xl font-bold hover:bg-gray-50 hover:border-brandGreen transition flex items-center justify-center gap-2">
                 💬 <span>İşletmeye Soru Sor</span>
