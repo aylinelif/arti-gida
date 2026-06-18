@@ -1,0 +1,31 @@
+<div class="container mx-auto px-4 py-10 max-w-3xl">
+  <h1 class="text-3xl font-extrabold text-brandDark mb-2">Rezervasyonlarım</h1>
+  <p class="text-gray-500 mb-8">Aktif ve geçmiş rezervasyonlarınız</p>
+
+  @if (isLoading) {
+    <p class="text-gray-500">Yükleniyor...</p>
+  } @else if (reservations.length === 0) {
+    <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+      <p class="text-gray-500 mb-4">Henüz rezervasyonunuz yok.</p>
+      <a routerLink="/" class="text-brandGreen font-bold hover:underline">İlanlara göz atın</a>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (item of reservations; track item.id) {
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div class="flex justify-between items-start gap-4">
+            <div>
+              <h3 class="font-bold text-lg text-brandDark">{{ item.listingTitle }}</h3>
+              <p class="text-sm text-gray-500 mt-1">📍 {{ item.establishmentName }}</p>
+              <p class="text-sm text-gray-600 mt-2">Teslimat: <strong>{{ item.pickupTime }}</strong></p>
+            </div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full"
+              [class]="item.status === 'pending' ? 'bg-brandLight text-brandGreen' : 'bg-gray-100 text-gray-600'">
+              {{ item.status === 'pending' ? 'Bekliyor' : item.status }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
